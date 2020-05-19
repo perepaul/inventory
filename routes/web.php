@@ -20,8 +20,8 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Auth::routes();
+Route::get('barcode', 'BardcodesController@create');
 
-Route::get('/home', function() {
+Route::get('/home', function () {
     return view('home');
 })->name('home')->middleware('auth');
