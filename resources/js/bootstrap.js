@@ -10,6 +10,26 @@ window.axios = require('axios');
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+window.$ = window.jQuery = require('jquery');
+require('overlayscrollbars');
+require('../../vendor/almasaeed2010/adminlte/dist/js/adminlte');
+window.iziToast = iziToast = require('izitoast');
+
+iziToast.settings({
+    timeout: 10000,
+    resetOnHover: false,
+    position: 'topRight',
+    icon: 'material-icons',
+    transitionIn: 'flipInX',
+    transitionOut: 'flipOutX',
+    onOpening: function () {
+        console.log('callback abriu!');
+    },
+    onClosing: function () {
+        console.log("callback fechou!");
+    }
+});
+
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting
