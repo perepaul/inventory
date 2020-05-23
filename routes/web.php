@@ -43,7 +43,7 @@ Route::get('/iventory/edit', function () {
 });
 Route::get('get-role-permissions/{id}', 'EmployeeController@getRolePermissions');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('web')->group(function () {
     Route::get('/users', 'EmployeeController@index')->name('user.index');
     Route::get('/users/create', 'EmployeeController@create')->name('user.create');
     Route::post('/users/store', 'EmployeeController@store')->name('user.store');
@@ -70,4 +70,11 @@ Route::get('/reports', function () {
 Route::get('/reports/employees', function () {
 
     return view('reports.employee_report');
+});
+
+
+Route::get('/sales', function(){
+
+    return view('sales.index');
+
 });
