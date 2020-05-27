@@ -165,7 +165,7 @@ return [
     |
     */
 
-    'use_route_url' => false,
+    'use_route_url' => true,
 
     'dashboard_url' => 'home',
 
@@ -173,11 +173,11 @@ return [
 
     'login_url' => 'login',
 
-    'register_url' => 'register',
+    'register_url' => false, //'register',
 
-    'password_reset_url' => 'password/reset',
+    'password_reset_url' => false, // 'password/reset',
 
-    'password_email_url' => 'password/email',
+    'password_email_url' => false, //'password/email',
 
     'profile_url' => false,
 
@@ -260,7 +260,7 @@ return [
         ['header' => 'account_settings',],
         [
             'text' => 'profile',
-            'url'  => 'admin/settings',
+            'url'  => 'profile',
             'icon' => 'fas fa-fw fa-user',
         ],
         // [
@@ -309,7 +309,8 @@ return [
         ['header' => 'STORE SETTINGS'],
         [
             'text'       => 'General settings',
-            'icon'      =>  'fa fa-cog'
+            'icon'      =>  'fa fa-cog',
+            'url'       =>  'settings'
         ],
         // [
         //     'text'       => 'warning',

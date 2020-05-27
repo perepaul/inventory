@@ -49,6 +49,7 @@
                         </thead>
                         <tbody>
                             @forelse ($employees as $employee)
+                            {{-- @dd($employee->permissions()->get()) --}}
                             <tr>
                                 {{-- @dd(asset(config('constants.profile_image_dir').'/'.$employee->passport)) --}}
                                 <td>

@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Helpers\RolesAndPermissionHelper;
 use App\Helpers\EmployeeHelper;
+use Illuminate\Validation\Rule;
+use App\Helpers\RolesAndPermissionHelper;
 
 class EmployeeController extends Controller
 {
@@ -80,6 +81,31 @@ class EmployeeController extends Controller
         return redirect()->route('user.index');
     }
 
+    public function showProfileForm()
+    {
+        return view('profile.index');
+    }
+
+    public function updateProfile(Request $request, $id)
+    {
+        $this->validateReq($request, true, $id);
+        $employee = $this->employeeHelper->getEmployee($id);
+        if ($request->hasFile('passport')) {
+            $file = $request->file('passport');
+            $data['passport'] = now() . '.' . $file->extension();
+            $file->move(public_path(config('constants.profile_image_dir')), $data['passport']);
+            if ($employee->passport != config('constants.defaul_passport')) {
+                unlink(public_path(config('constants.profile_image_dir')) . $employee->passport);
+            }
+        } else {
+            $data['passport'] = 'default.png';
+        }
+
+        $employee->update($request->except(['_token', 'permissions', 'passport', 'role', 'password_confirmation']));
+        session()->flash('message', 'Profile updated successfully');
+        return redirect()->back();
+    }
+
     public function destroy($id)
     {
         $employee = $this->employeeHelper->getEmployee($id);
@@ -93,14 +119,23 @@ class EmployeeController extends Controller
     private function validateReq(Request $request, $update = false, $ignore_id = null)
     {
         $uniqueRule = (($update) && !is_null($ignore_id)) ? "unique:users,username,{$ignore_id}" : "unique:users";
+        $sometimes = ($update) ? 'sometimes' : '';
 
         return $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:255', "{$uniqueRule}"],
-            'password' => ['sometimes', 'required', 'string', 'min:3', 'confirmed'],
+            'username' => [$sometimes, 'required', 'string', 'max:255', "{$uniqueRule}"],
+            'password' => [
+                Rule::requiredIf(function () use ($request, $update) {
+                    if ($request->password == null && $update) {
+                        return false;
+                    }
+                    return true;
+                }),
+                'confirmed'
+            ],
             'passport' => ['sometimes', 'mimes:jpeg,jpg,png'],
-            'role'  => ['required'],
-            'permissions' => ['required']
+            'role'  => [$sometimes, 'required'],
+            'permissions' => [$sometimes, 'required']
         ]);
     }
 
