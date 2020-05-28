@@ -39,6 +39,7 @@
                     <!-- form start -->
                     <form role="form" action="{{route('inventories.store')}}" method="POST"
                         enctype="multipart/form-data">
+                        @csrf
                         <div class="card-body row">
                             <div class="form-group col-md-6">
                                 <label for="#">SKU</label>
@@ -73,13 +74,11 @@
                                 <input type="text" class="form-control" id="exampleInputEmail1"
                                     placeholder="Discount price">
                             </div>
-                            <div class="form-group custom-checkbox col-md-4  w-100">
-                                <label for="">Status</label><br>
-                                <input type="checkbox" class=" form-control w-100" id="customCheck1"
-                                    data-toggle="toggle" data-width="100">
+                            <div class="form-group  col-md-2 pl-2  w-100">
+                                @include('partials.status',['name'=>'status'])
 
                             </div>
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-5">
                                 <label for="#">Product Image</label>
                                 <div class="input-group">
                                     <div class="custom-file">
