@@ -30,15 +30,15 @@ Route::middleware('web')->group(function () {
 // })->name('home')/*->middleware('auth')*/;
 
 
-Route::get('/inventories', function () {
+// Route::get('/inventories', function () {
 
-    return view('products.index');
-})->name('products.index');
+//     return view('products.index');
+// })->name('products.index');
 
-Route::get('/inventory/create', function () {
+// Route::get('/inventory/create', function () {
 
-    return view('products.create');
-})->name('products.create');
+//     return view('products.create');
+// })->name('products.create');
 
 Route::get('/iventory/edit', function () {
 
@@ -50,6 +50,7 @@ Route::middleware('web')->group(function () {
     Route::get('/', function () {
         return view('home');
     })->name('home');
+    Route::resource('inventories', 'ProductsController');
     Route::get('/profile', 'EmployeeController@showProfileForm');
     Route::post('/profile/{id}', 'EmployeeController@updateProfile')->name('user.updateProfile');
     Route::get('/users', 'EmployeeController@index')->name('user.index');

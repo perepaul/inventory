@@ -13,6 +13,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.$ = window.jQuery = require('jquery');
 require('overlayscrollbars');
 require('../../vendor/almasaeed2010/adminlte/dist/js/adminlte');
+require('bootstrap4-toggle');
 window.iziToast = iziToast = require('izitoast');
 
 iziToast.settings({

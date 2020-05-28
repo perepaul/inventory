@@ -29,7 +29,7 @@
             <div class="card">
                 <div class="card-header text-right">
 
-                    <a href="{{route('products.create')}}" class="btn btn-primary">Add Product</a>
+                    <a href="{{route('inventories.create')}}" class="btn btn-primary">Add Product</a>
 
                 </div>
                 <!-- /.card-header -->

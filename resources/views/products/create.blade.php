@@ -12,7 +12,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="{{route('home')}}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{route('products.index')}}">Product</a></li>
+                    <li class="breadcrumb-item"><a href="{{route('inventories.index')}}">Product</a></li>
                     <li class="breadcrumb-item active">Create Product</li>
                 </ol>
             </div>
@@ -37,40 +37,49 @@
                     </div>
                     <!-- /.card-header -->
                     <!-- form start -->
-                    <form role="form">
+                    <form role="form" action="{{route('inventories.store')}}" method="POST"
+                        enctype="multipart/form-data">
                         <div class="card-body row">
+                            <div class="form-group col-md-6">
+                                <label for="#">SKU</label>
+                                <input type="text" class="form-control" id="" placeholder="SKU" name="sku">
+                            </div>
                             <div class="form-group col-md-6">
                                 <label for="#">Product Name</label>
                                 <input type="text" class="form-control" id="exampleInputEmail1"
-                                    placeholder="Product Name">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="#">Product Brand</label>
-                                <input type="text" class="form-control" id="exampleInputEmail1"
-                                    placeholder="Product Brand">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="#">SKU</label>
-                                <input type="text" class="form-control" id="" placeholder="SKU">
+                                    placeholder="Product Name" name="name">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="#">Stock Quantity</label>
-                                <input type="text" class="form-control" id="" placeholder="Total Prodct">
+                                <input type="text" class="form-control" id="" placeholder="Total Prodct"
+                                    name="quantity">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="#">Stock Alert Quantity</label>
+                                <input type="text" class="form-control" id="exampleInputEmail1"
+                                    placeholder="Alert Quantity" name="alert_quantity">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="#">Purchse Price (per quantity)</label>
-                                <input type="number" class="form-control" id="" placeholder="Quantity">
+                                <input type="text" class="form-control" id="" placeholder="Quantity"
+                                    name="purchase_price">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="#">Selling Price (per quantity)</label>
-                                <input type="number" class="form-control" id="" placeholder="Quantity">
+                                <input type="text" class="form-control" id="price" placeholder="Quantity" name="price">
                             </div>
-                            <div class="form-group col-md-6">
-                                <label for="#">Alert Quantity</label>
+                            <div class="form-group col-md-5">
+                                <label for="#">Discount Amount</label>
                                 <input type="text" class="form-control" id="exampleInputEmail1"
-                                    placeholder="Alert Quantity">
+                                    placeholder="Discount price">
                             </div>
-                            <div class="form-group col-md-6">
+                            <div class="form-group custom-checkbox col-md-4  w-100">
+                                <label for="">Status</label><br>
+                                <input type="checkbox" class=" form-control w-100" id="customCheck1"
+                                    data-toggle="toggle" data-width="100">
+
+                            </div>
+                            <div class="form-group col-md-4">
                                 <label for="#">Product Image</label>
                                 <div class="input-group">
                                     <div class="custom-file">
@@ -84,8 +93,8 @@
                         </div>
                         <!-- /.card-body -->
 
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-success">Submit</button>
+                        <div class="card-footer bg-white">
+                            <button type="submit" class="btn btn-success float-right">Submit</button>
                         </div>
                     </form>
                 </div>

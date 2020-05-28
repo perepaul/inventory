@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
+        "bootstrap4-toggle": "^3.6.1",
         "icheck-bootstrap": "^3.0.1",
         "izitoast": "^1.4.0",
         "jquery": "^3.5.1",
