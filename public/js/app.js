@@ -38134,7 +38134,13 @@ module.exports = function(module) {
 
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
+var sound_success = document.getElementById('sound-success');
+var sound_warning = document.getElementById('sound-warning');
+var sound_error = document.getElementById('sound-error');
+
 notify = function notify(message, type) {
+  playsound(type);
+
   switch (type) {
     case 'success':
       iziToast.success({
@@ -38148,6 +38154,22 @@ notify = function notify(message, type) {
         icon: 'fas fa-times',
         message: message
       });
+      break;
+  }
+};
+
+playsound = function playsound(type) {
+  switch (type) {
+    case 'success':
+      sound_success.play();
+      break;
+
+    case 'warning':
+      sound_warning.play();
+      break;
+
+    case 'error':
+      sound_error.play();
       break;
   }
 };
@@ -38203,17 +38225,15 @@ __webpack_require__(/*! bootstrap4-toggle */ "./node_modules/bootstrap4-toggle/j
 
 window.iziToast = iziToast = __webpack_require__(/*! izitoast */ "./node_modules/izitoast/dist/js/iziToast.js");
 iziToast.settings({
-  timeout: 10000,
+  timeout: 3000,
   resetOnHover: false,
   position: 'topRight',
   icon: 'material-icons',
   transitionIn: 'flipInX',
   transitionOut: 'flipOutX',
-  onOpening: function onOpening() {
-    console.log('callback abriu!');
+  onOpening: function onOpening() {// console.log('callback abriu!');
   },
-  onClosing: function onClosing() {
-    console.log("callback fechou!");
+  onClosing: function onClosing() {// console.log("callback fechou!");
   }
 });
 /**
@@ -40168,8 +40188,8 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /var/www/inventory/resources/js/app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! /var/www/inventory/resources/sass/app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! /var/www/Simple_Inventory/resources/js/app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! /var/www/Simple_Inventory/resources/sass/app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

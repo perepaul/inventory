@@ -17,17 +17,17 @@ require('bootstrap4-toggle');
 window.iziToast = iziToast = require('izitoast');
 
 iziToast.settings({
-    timeout: 10000,
+    timeout: 3000,
     resetOnHover: false,
     position: 'topRight',
     icon: 'material-icons',
     transitionIn: 'flipInX',
     transitionOut: 'flipOutX',
     onOpening: function () {
-        console.log('callback abriu!');
+        // console.log('callback abriu!');
     },
     onClosing: function () {
-        console.log("callback fechou!");
+        // console.log("callback fechou!");
     }
 });
 

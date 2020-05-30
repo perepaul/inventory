@@ -1,6 +1,11 @@
 require('./bootstrap');
 
+const sound_success = document.getElementById('sound-success');
+const sound_warning = document.getElementById('sound-warning');
+const sound_error = document.getElementById('sound-error');
+
 notify = (message, type) => {
+    playsound(type);
     switch (type) {
         case 'success':
             iziToast.success({
@@ -15,6 +20,20 @@ notify = (message, type) => {
             })
             break;
 
+    }
+}
+
+playsound = (type) => {
+    switch (type) {
+        case 'success':
+            sound_success.play();
+            break;
+        case 'warning':
+            sound_warning.play();
+            break;
+        case 'error':
+            sound_error.play();
+            break;
     }
 }
 
