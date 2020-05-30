@@ -1,5 +1,5 @@
-@extends('home')
-
+@extends('adminlte::page')
+@\@section('title','Create Inventory')
 @section('content_header')
 
 <!-- Content Header (Page header) -->
@@ -43,46 +43,50 @@
                         <div class="card-body row">
                             <div class="form-group col-md-6">
                                 <label for="#">SKU</label>
-                                <input type="text" class="form-control" id="" placeholder="SKU" name="sku">
+                                <input type="text" class="form-control" id="" placeholder="SKU" name="sku"
+                                    value="{{old('sku')}}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="#">Product Name</label>
                                 <input type="text" class="form-control" id="exampleInputEmail1"
-                                    placeholder="Product Name" name="name">
+                                    placeholder="Product Name" name="name" value="{{old('name')}}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="#">Stock Quantity</label>
-                                <input type="text" class="form-control" id="" placeholder="Total Prodct"
-                                    name="quantity">
+                                <input type="text" class="form-control" id="" placeholder="Total Prodct" name="quantity"
+                                    value="{{old('quantity')}}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="#">Stock Alert Quantity</label>
                                 <input type="text" class="form-control" id="exampleInputEmail1"
-                                    placeholder="Alert Quantity" name="alert_quantity">
+                                    placeholder="Alert Quantity" name="alert_quantity"
+                                    value="{{old('alert_quantity')}}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="#">Purchse Price (per quantity)</label>
                                 <input type="text" class="form-control" id="" placeholder="Quantity"
-                                    name="purchase_price">
+                                    name="purchase_price" value="{{old('purchase_price')}}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="#">Selling Price (per quantity)</label>
-                                <input type="text" class="form-control" id="price" placeholder="Quantity" name="price">
+                                <input type="text" class="form-control" id="price" placeholder="Quantity" name="price"
+                                    value="{{old('price')}}">
                             </div>
                             <div class="form-group col-md-5">
                                 <label for="#">Discount Amount</label>
                                 <input type="text" class="form-control" id="exampleInputEmail1"
-                                    placeholder="Discount price">
+                                    placeholder="Discount price" name="discount" value="{{old('discount')}}">
                             </div>
                             <div class="form-group  col-md-2 pl-2  w-100">
-                                @include('partials.status',['name'=>'status'])
+                                @include('partials.status',['checked'=>true,'name'=>'status',
+                                'on'=>'Enable','off'=>'Disable'])
 
                             </div>
                             <div class="form-group col-md-5">
                                 <label for="#">Product Image</label>
                                 <div class="input-group">
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="exampleInputFile">
+                                        <input type="file" class="custom-file-input" id="exampleInputFile" name="image">
                                         <label class="custom-file-label" for="exampleInputFile">Choose file</label>
                                     </div>
 

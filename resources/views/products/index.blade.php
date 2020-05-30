@@ -37,28 +37,38 @@
                     <table id="example2" class="table table-stripped table-hover">
                         <thead>
                             <tr>
-                                <th>Product Image</th>
-                                <th>Product Name</th>
-                                <th>Product Brand</th>
-                                <th>Total Stock</th>
-                                <th>Remaining Stock</th>
+                                <th>Image</th>
+                                <th width="400px">Product Name</th>
+                                <th>Quantity</th>
+                                <th>Low stock alert</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse ($products as $product)
                             <tr>
-                                <td>Image Here</td>
+                                <td><img src="{{asset(config('constants.product_image_dir').'/'.$product->image)}}"
+                                        alt="" class="img-responsive img-circle" srcset="" width="30" height="30"></td>
                                 <td>
-                                    Name Here
+                                    {{$product->name}}
                                 </td>
-                                <td>Brand Here</td>
-                                <td> Total Here</td>
-                                <td>Remaining Here</td>
+                                <td>{{$product->quantity}}</td>
+                                <td> {{$product->alert_quantity}}</td>
                                 <td>
-                                    <button class="btn btn-warning btn-sm">Edit <i class="fa fa-edit"></i> </button>
-                                    <button class="btn btn-danger btn-sm">Delete <i class="fa fa-trash"></i> </button>
+                                    <a href="{{route('inventories.edit',$product->id)}}"
+                                        class="btn btn-warning btn-sm">Edit <i class="fa fa-edit"></i> </a>
+                                    <a href="{{route('inventories.destroy',$product->id)}}"
+                                        class="btn btn-danger btn-sm">Delete <i class="fa fa-trash"></i>
+                                    </a>
+                                    <button class="btn btn-secondary btn-sm">Print Label <i
+                                            class="fa fa-barcode"></i></button>
                                 </td>
                             </tr>
+                            @empty
+                            <tr>
+                                <td class="text-center" colspan="6">No products yet</td>
+                            </tr>
+                            @endforelse
 
                         </tbody>
 

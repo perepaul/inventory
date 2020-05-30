@@ -50,7 +50,9 @@ Route::middleware('web')->group(function () {
     Route::get('/', function () {
         return view('home');
     })->name('home');
-    Route::resource('inventories', 'ProductsController');
+    Route::resource('inventories', 'ProductsController')->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::get('inventories/{inventory}/destroy', 'ProductsController@destroy')->name('inventories.destroy');
+    // Route::get('inventories/{inventory}')->name('inventories.destroy');
     Route::get('/profile', 'EmployeeController@showProfileForm');
     Route::post('/profile/{id}', 'EmployeeController@updateProfile')->name('user.updateProfile');
     Route::get('/users', 'EmployeeController@index')->name('user.index');

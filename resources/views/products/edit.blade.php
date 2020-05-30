@@ -1,69 +1,114 @@
-@extends('home')
-
+@extends('adminlte::page')
+@section('title','Edit Inventory')
 @section('content_header')
-    
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1> <b> PRODUCT</b></h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{route('home')}}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{route('inventories.index')}}">Product</a></li>
+                    <li class="breadcrumb-item active">Update Inventory</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
 @endsection
 
 
 @section('content')
 
 <section class="content">
-    <div class="container-fluid">
-      <div class="row">
-          <div class="col-md-4">
-
-            <img class="img-fluid" src="https://via.placeholder.com/500" alt="">
-
-          </div>
-        <div class="col-md-8">
-            <!-- general form elements -->
-            <div class="card card-secondary">
-            <div class="card-header">
-                <h3 class="card-title">Product Details</h3>
-            </div>
-            <!-- /.card-header -->
-            <!-- form start -->
-            <form role="form">
-                <div class="card-body">
-                <div class="form-group">
-                    <label for="exampleInputEmail1">Product Name</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Name">
-                </div>  
-                <div class="form-group">
-                    <label for="exampleInputEmail1">Product Brand</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Brand Name">
-                </div>
-                <div class="form-group">
-                    <label for="exampleInputPassword1">Product Quantity</label>
-                    <input type="number" class="form-control" id="exampleInputPassword1" placeholder="Total Quantity">
-                </div>
-                 <div class="form-group">
-                    <label for="exampleInputPassword1">Product Alert</label>
-                    <input type="number" class="form-control" id="exampleInputPassword1" placeholder="Remaining Products">
-                </div>
-                <div class="form-group">
-                    <label for="exampleInputFile">Upload Image</label>
-                    <div class="input-group">
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="exampleInputFile">
-                        <label class="custom-file-label" for="exampleInputFile">Choose file</label>
+    <div class="container-fluid ">
+        <div class="row">
+            <!-- left column -->
+            <div class="col-md-12">
+                <!-- general form elements -->
+                <div class="card card-secondary">
+                    <div class="card-header">
+                        <h3 class="card-title">Update Inventory</h3>
                     </div>
-                    </div>
-                </div>
-                
-                </div>
-                <!-- /.card-body -->
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                    <form role="form" action="{{route('inventories.update',$product->id)}}" method="POST"
+                        enctype="multipart/form-data">
+                        @method('PUT')
+                        @csrf
+                        <div class="card-body row">
+                            <div class="form-group col-md-6">
+                                <label for="#">SKU</label>
+                                <input type="text" class="form-control" id="" placeholder="SKU" name="sku"
+                                    value="{{$product->sku}}" readonly disabled>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="#">Product Name</label>
+                                <input type="text" class="form-control" id="exampleInputEmail1"
+                                    placeholder="Product Name" name="name" value="{{$product->name}}">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="#">Stock Quantity</label>
+                                <input type="text" class="form-control" id="" placeholder="Total Prodct" name="quantity"
+                                    value="{{$product->quantity}}" readonly disabled>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="#">Stock Alert Quantity</label>
+                                <input type="text" class="form-control" id="exampleInputEmail1"
+                                    placeholder="Alert Quantity" name="alert_quantity"
+                                    value="{{$product->alert_quantity}}">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="#">Purchse Price (per quantity)</label>
+                                <input type="text" class="form-control" id="" placeholder="Quantity"
+                                    name="purchase_price" value="{{$product->purchase_price}}">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="#">Selling Price (per quantity)</label>
+                                <input type="text" class="form-control" id="price" placeholder="Quantity" name="price"
+                                    value="{{$product->price}}">
+                            </div>
+                            <div class="form-group col-md-5">
+                                <label for="#">Discount Amount</label>
+                                <input type="text" class="form-control" id="exampleInputEmail1"
+                                    placeholder="Discount price" name="discount" value="{{$product->discount}}">
+                            </div>
+                            {{-- @dd($product->status) --}}
+                            <div class="form-group  col-md-2 pl-2  w-100">
+                                @include('partials.status',['checked'=>$product->status,'name'=>'status','on'=>'Enable','off'=>'Disable'])
 
-                <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
+                            <div class="form-group col-md-5">
+                                <label for="#">Product Image</label>
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="exampleInputFile" name="image">
+                                        <label class="custom-file-label" for="exampleInputFile">Choose file</label>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- /.card-body -->
+
+                        <div class="card-footer bg-white">
+                            <button type="submit" class="btn btn-success float-right">Update</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+                <!-- /.card -->
+
             </div>
-            <!-- /.card -->
-
-  </div>
-      </div>
+        </div>
     </div>
 </section>
-    
+
+
+
 @endsection
