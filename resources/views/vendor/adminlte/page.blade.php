@@ -8,8 +8,8 @@
 
 @section('adminlte_css')
 @stack('css')
-@yield('css')
 @stop
+@yield('css')
 
 @section('classes_body', $adminlte->getBodyClasses())
 
@@ -65,5 +65,5 @@
 @section('adminlte_js')
 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.min.js') }}"></script>
 @stack('js')
-@yield('js')
 @stop
+@yield('js')

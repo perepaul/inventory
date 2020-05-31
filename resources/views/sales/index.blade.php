@@ -1,7 +1,14 @@
 @extends('adminlte::page')
 
+@section('css')
+<style>
+    .table th,
+    .table td {
+        vertical-align: middle !important;
+    }
+</style>
+@stop
 @section('title','Sales')
-
 @section('content_header')
 
 <!-- Content Header (Page header) -->
@@ -22,7 +29,6 @@
 </section>
 
 @endsection
-
 
 @section('content')
 
@@ -54,15 +60,14 @@
                                 </thead>
                                 <tbody class="text-sm">
                                     <tr>
-                                        <td class="p-2" style="vertical-align:middle;">Name</td>
-                                        <td class="p-2" style="vertical-align:middle;">
+                                        <td class="p-2">Name</td>
+                                        <td class="p-2">
                                             @include('partials.select')
                                         </td>
-                                        <td class="p-2" style="vertical-align:middle;">₦300000</td>
-                                        <td class="p-2" style="vertical-align:middle;"><input type="text"
-                                                name="discount" class="form-control"></td>
-                                        <td class="p-2" style="vertical-align:middle;">₦30000</td>
-                                        <td class="p-2" style="vertical-align:middle;"><button
+                                        <td class="p-2">₦300000</td>
+                                        <td class="p-2"><input type="text" name="discount" class="form-control"></td>
+                                        <td class="p-2">₦30000</td>
+                                        <td class="p-2"><button
                                                 class=" btn btn-danger btn-sm text-sm">&times;</i></button></td>
                                     </tr>
                                     {{-- <tr>
@@ -107,3 +112,8 @@
 </section>
 
 @endsection
+@section('js')
+<script>
+
+</script>
+@stop
