@@ -37,6 +37,11 @@ Route::middleware('web')->group(function () {
         return view('home');
     })->name('home');
     Route::get('sales', 'SalesController@index')->name('sales.index');
+    Route::get('sales/boot', 'SalesController@boot')->name('sales.boot');
+    Route::get('sales/search', 'SalesController@search')->name('sales.search');
+    Route::get('sales/add', 'SalesController@addProduct')->name('sales.add-product');
+
+
     Route::resource('inventories', 'ProductsController')->only(['index', 'create', 'store', 'edit', 'update']);
     Route::get('inventories/{inventory}/destroy', 'ProductsController@destroy')->name('inventories.destroy');
     // Route::get('inventories/{inventory}')->name('inventories.destroy');

@@ -17,7 +17,9 @@ class CreateSalesTable extends Migration
             $table->id();
             $table->string('reference_no')->unique();
             $table->unsignedBigInteger('user_id');
-            $table->integer('status');
+            $table->integer('status')->default(0);
+            $table->integer('discount')->nullable();
+            $table->integer('total')->nullable();
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });

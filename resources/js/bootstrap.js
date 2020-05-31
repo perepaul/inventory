@@ -11,6 +11,8 @@ window.axios = require('axios');
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 window.$ = window.jQuery = require('jquery');
+
+require('select2');
 require('overlayscrollbars');
 require('../../vendor/almasaeed2010/adminlte/dist/js/adminlte');
 require('bootstrap4-toggle');

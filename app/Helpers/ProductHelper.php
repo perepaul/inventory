@@ -6,16 +6,26 @@ use App\Product;
 
 class ProductHelper
 {
+    public $productModel;
+    public function __construct(Product $product)
+    {
+        $this->productModel = $product;
+    }
     public function getAllProducts()
     {
-        return Product::all();
+        return $this->productModel::all();
     }
     public function findProduct(int $id)
     {
-        return Product::findOrFail($id);
+        return $this->productModel::findOrFail($id);
     }
     public function create($data)
     {
-        return Product::create($data);
+        return $this->productModel::create($data);
+    }
+
+    public function search(string $term)
+    {
+        return $this->productModel->where('sku', 'LIKE', "%{$term}%")->orWhere('name', 'LIKE', "%{$term}%")->orderBy('name', 'asc')->get();
     }
 }

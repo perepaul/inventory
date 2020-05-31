@@ -48,3 +48,19 @@ function getStatus($status)
 {
     return ($status == 'on') ? 1 : 0;
 }
+
+function format_currency($param)
+{
+    return number_format($param);
+}
+
+function generateRefNo()
+{
+    $characters = 'ABCDEFGHJKMNOPQRSTUVWXYZ123456789';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < 12; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
+}

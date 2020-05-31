@@ -19,6 +19,11 @@ notify = (message, type) => {
                 message
             })
             break;
+        case 'warning':
+            iziToast.warning({
+                icon: 'fas fa-danger',
+                message
+            });
 
     }
 }
@@ -101,13 +106,13 @@ $(document).on('change', '.input-text', function () {
     if (valueCurrent >= minValue) {
         $(".btn-number[data-type='minus']").removeAttr('disabled')
     } else {
-        alert('Sorry, the minimum value was reached');
+        notify('Min product quantity reached or exceeded', 'warning');
         $(this).val($(this).data('oldValue'));
     }
     if (valueCurrent <= maxValue) {
         $(".btn-number[data-type='plus']").removeAttr('disabled')
     } else {
-        alert('Sorry, the maximum value was reached');
+        notify('Max product quantity reached or exceeded', 'warning');
         $(this).val($(this).data('oldValue'));
     }
 
