@@ -25,20 +25,6 @@ Route::middleware('web')->group(function () {
     Route::get('barcode', 'BardcodesController@create');
 });
 
-// Route::get('/home', function () {
-//     return view('home');
-// })->name('home')/*->middleware('auth')*/;
-
-
-// Route::get('/inventories', function () {
-
-//     return view('products.index');
-// })->name('products.index');
-
-// Route::get('/inventory/create', function () {
-
-//     return view('products.create');
-// })->name('products.create');
 
 Route::get('/iventory/edit', function () {
 
@@ -50,6 +36,7 @@ Route::middleware('web')->group(function () {
     Route::get('/', function () {
         return view('home');
     })->name('home');
+    Route::get('sales', 'SalesController@index')->name('sales.index');
     Route::resource('inventories', 'ProductsController')->only(['index', 'create', 'store', 'edit', 'update']);
     Route::get('inventories/{inventory}/destroy', 'ProductsController@destroy')->name('inventories.destroy');
     // Route::get('inventories/{inventory}')->name('inventories.destroy');
@@ -80,7 +67,7 @@ Route::get('/reports/employees', function () {
 });
 
 
-Route::get('/sales', function () {
+// Route::get('/sales', function () {
 
-    return view('sales.index');
-});
+//     return view('sales.index');
+// });

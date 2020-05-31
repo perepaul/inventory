@@ -80,7 +80,7 @@
 
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 bg-teal p-2">
                             <div class="form-group">
                                 <label for="#">Total Quantity</label>
                                 <input type="text" class="form-control" id="exampleInputEmail1"
