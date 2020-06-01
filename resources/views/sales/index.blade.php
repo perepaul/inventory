@@ -86,22 +86,26 @@
                         <div class="col-md-3">
                             <div class="p-3 bg-teal w-100 m-0">
 
-                                <div class="form-group">
-                                    <label for="#">Total Quantity</label>
-                                    <input type="text" class="form-control" id="exampleInputEmail1"
-                                        placeholder="Total Quantity">
-                                </div>
-
-                                <div class="form-group">
+                                <div class="form-group text-sm">
                                     <label for="#">Discount %</label>
                                     <input type="text" class="form-control" id="exampleInputEmail1"
                                         placeholder="Discount Price">
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group text-sm">
                                     <label for="#">Total</label>
                                     <input type="text" class="form-control" id="exampleInputEmail1"
                                         placeholder="Total ">
+                                </div>
+                                <div class="form-group text-sm">
+                                    <label for="#">Payment Method</label>
+                                    <select name="method" id="method" class="form-control">
+                                        @foreach ($payment_methods as $method)
+                                        <option value="{{$method->id}}" @if($method->id == 1)selected
+                                            @endif>{{$method->name}}</option>
+
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="col-md-12 justify-content-between d-flex">
                                     <button onclick="deleteSale()" class="btn btn-warning">Cancel</button>

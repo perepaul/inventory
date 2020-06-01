@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ProductHelper;
 use App\Helpers\SalesHelper;
+use App\PaymentMethod;
 use Illuminate\Http\Request;
 
 class SalesController extends Controller
@@ -18,7 +19,8 @@ class SalesController extends Controller
 
     public function index()
     {
-        return view('sales.index');
+        $payment_methods = PaymentMethod::all();
+        return view('sales.index', compact('payment_methods'));
     }
 
     public function boot()
