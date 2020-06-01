@@ -41,9 +41,10 @@
                     <div class="row">
 
                         <div class="col-md-8 offset-md-2 mb-5" style="">
-                            <select name="product_search" id="product_search" class="w-100"
-                                style="height:100px;"></select>
-                            {{-- <input type="text" class="form-control" placeholder="Search By Name, Sku  or Scan Code"> --}}
+                            <form action="" id="product_search_form">
+                                <select name="product_search" id="product_search" class="w-100"
+                                    style="height:100px;"></select>
+                            </form>
                         </div>
 
                         <div class="col-md-9">
@@ -72,9 +73,9 @@
                                         <td class="p-2"><button
                                                 class=" btn btn-danger btn-sm text-sm">&times;</i></button></td>
                                     </tr> --}}
-                                    <tr>
+                                    {{-- <tr>
                                         <td colspan="5" class="text-center">Nothing Here!</td>
-                                    </tr>
+                                    </tr> --}}
 
                                 </tbody>
 
@@ -103,7 +104,7 @@
                                         placeholder="Total ">
                                 </div>
                                 <div class="col-md-12 justify-content-between d-flex">
-                                    <button class="btn btn-warning">Cancel</button>
+                                    <button onclick="deleteSale()" class="btn btn-warning">Cancel</button>
                                     <button class="btn btn-success">Checkout </button>
                                 </div>
                             </div>
@@ -158,14 +159,17 @@
                 data:{id}
             }).then(
                 res =>{
-                    $('#table-details').html(res.data);
+                    mountItems(res.data);
+                    playsound('beep')
                 },
 
                 err => {
-                        var payload = err.responseJSON;
-                        if(payload.message){
-                            notify(payload.message,payload.type)
+                    var payload = err.responseJSON;
+                    if(payload.message){
+                        notify(payload.message,payload.type)
+                        playsound(payload.types)
                         }else{
+                            playsound('error')
                             notify('Product could not be added','error')
                         }
                 })
@@ -176,10 +180,59 @@
         $.ajax('sales/boot')
         .then(res => {
                 if(res.data){
-                    $('#table-details').html(res.data);
-                    notify('Sale restored','success');
+                    mountItems(res.data);
                 }
         });
+    }
+
+    function delete_sale_item(id)
+    {
+        $.ajax('sales/'+id+'/delete')
+        .then(res=>{
+            if(res.success)
+            {
+                playsound('beep')
+               mountItems(res.data);
+            }
+        },
+        err=>{
+            payload = err.responseJSON;
+            if(payload.message){
+                playsound(payload.type)
+                notify(payload.message,payload.type);
+            }else{
+                playsound('error')
+                notify('Oops!! an error occured','error')
+            }
+        })
+    }
+
+    function deleteSale()
+    {
+        con = confirm('are you sure you want to cancel sale');
+        if(con) {
+
+            $.ajax('sales/delete-all')
+            .then(res=>{
+                if(res.data)
+                {
+                    playsound('beep');
+                    mountItems(res.data)
+                }
+            },
+            err => {
+                payload = err.responseJSON;
+                if(payload.message)
+                {
+                    notify(payload.message,payload.type)
+                }
+            })
+        }
+    }
+
+    function mountItems(data)
+    {
+        $('#table-details').html(data)
     }
 </script>
 @stop

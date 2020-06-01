@@ -40,6 +40,8 @@ Route::middleware('web')->group(function () {
     Route::get('sales/boot', 'SalesController@boot')->name('sales.boot');
     Route::get('sales/search', 'SalesController@search')->name('sales.search');
     Route::get('sales/add', 'SalesController@addProduct')->name('sales.add-product');
+    Route::get('sales/{id}/delete', 'SalesController@deleteItem')->name('sales.delete.item');
+    Route::get('sales/delete-all', 'SalesController@deleteAll')->name('sales.delete.all');
 
 
     Route::resource('inventories', 'ProductsController')->only(['index', 'create', 'store', 'edit', 'update']);

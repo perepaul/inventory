@@ -23,12 +23,20 @@ class SalesController extends Controller
 
     public function boot()
     {
+        return $this->returnRes();
+    }
+
+    private function returnRes()
+    {
         $sale = $this->salesHelper->sale();
         $markup = '';
         foreach ($sale->sale_items->all() as $saleItem) {
             $markup .= $this->tableRow($saleItem->product, $saleItem->quantity);
         }
 
+        if (empty($markup)) {
+            $markup = '<tr><td colspan="5" class="text-center text-muted">Nothing Here!</td></tr>';
+        }
         return response()->json([
             'success' => true,
             'data' => $markup
@@ -65,32 +73,49 @@ class SalesController extends Controller
                 'type' => 'warning'
             ], 400);
         }
-        $markup = '';
-        foreach ($sale_items->all() as $saleItem) {
-            $markup .= $this->tableRow($saleItem->product, $saleItem->quantity);
-        }
 
-        return response()->json([
-            'success' => true,
-            'data' => $markup
-        ]);
+
+        return $this->returnRes();
+    }
+
+    public function deleteItem($id)
+    {
+        $deleted = $this->salesHelper->deleteSaleItem($id);
+
+        if (!$deleted) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Item could not be deleted',
+                'type' => 'error'
+            ], 400);
+        }
+        return $this->returnRes();
+    }
+
+    public function deleteAll()
+    {
+        $deleted = $this->salesHelper->deleteAll();
+        if (!$deleted) {
+            return response()->json([
+                'succes' => false,
+                'message' => 'Nothing to delete',
+                'type' => 'error'
+            ], 400);
+        }
+        return  $this->returnRes();
     }
 
     public function tableRow($product, $quantity = 1)
     {
-        // dd($product->name);
-        // dd(format_currency($product->price));
-
-
         $markup = '<tr>';
-        $markup .=    '<td class="p-2">' . $product->name . '</td>';
-        $markup .=     '<td class="p-2">';
+        $markup .=    '<td>' . $product->name . '</td>';
+        $markup .=     '<td>';
         $markup .=    view('partials.select', ['product' => $product]);
         $markup .=     '</td>';
-        $markup .=    '<td class="p-2">' . format_currency($product->price) . '</td>';
-        $markup .=    '<td class="p-2"><input type="text" name="discount" value="' . $product->discount . '" class="form-control"></td>';
-        $markup .=    '<td class="p-2">' . format_currency($product->price * $quantity) . '</td>';
-        $markup .=    '<td class="p-2"><button class=" btn text-danger text-lg btn-sm text-sm">&times;</i></button></td>';
+        $markup .=    '<td>' . format_currency($product->price) . '</td>';
+        $markup .=    '<td><input type="text" name="discount" value="' . $product->discount . '" class="form-control"></td>';
+        $markup .=    '<td>' . format_currency($product->price * $quantity) . '</td>';
+        $markup .=    '<td><button onclick="delete_sale_item(' . $product->id . ')" class=" btn text-danger text-lg btn-sm text-sm">&times;</i></button></td>';
         $markup .=    '</tr>';
         return $markup;
     }

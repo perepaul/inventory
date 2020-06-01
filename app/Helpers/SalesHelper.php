@@ -68,6 +68,25 @@ class SalesHelper
         }
     }
 
+    public function deleteSaleItem($id)
+    {
+        $sale_item = $this->filterSale($id);
+        return $sale_item->first()->delete();
+    }
+
+    public function deleteAll()
+    {
+        $sale = $this->sale();
+        $sale_items = $sale->sale_items()->get();
+        if ($sale_items->count() < 1) {
+            return false;
+        }
+        $sale_items->each(function ($item, $index) {
+            $item->delete();
+        });
+        return true;
+    }
+
     public function saleQuantityAdapter($product_id, $qty)
     {
         $sale = $this->sale();
@@ -82,5 +101,22 @@ class SalesHelper
             return 'exists';
         }
         return $this->sale()->sale_items;
+    }
+
+    public function getUserSaleItem($id)
+    {
+        return $this->filterSale($id);
+    }
+
+    public function filterSale($id)
+    {
+        $sale = $this->sale();
+        $sale_items = $sale->sale_items()->get();
+
+        $filtered = $sale_items->filter(function ($item) use ($id) {
+            return $item->product_id == $id;
+        });
+
+        return $filtered;
     }
 }
