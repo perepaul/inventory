@@ -16,3 +16,8 @@
     <source src="{{asset(config('constants.sound_dir').'/error.ogg')}}" type="audio/ogg">
     Your browser does not support the HTML5 Audio element.
 </audio>
+<audio id="sound-beep" style="display:none">
+    <source src="{{asset(config('constants.sound_dir').'/beep.mp3')}}" type="audio/mpeg">
+    <source src="{{asset(config('constants.sound_dir').'/beep.wav')}}" type="audio/wav">
+    Your browser does not support the HTML5 Audio element.
+</audio>

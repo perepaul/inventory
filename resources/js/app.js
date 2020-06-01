@@ -3,6 +3,7 @@ require('./bootstrap');
 const sound_success = document.getElementById('sound-success');
 const sound_warning = document.getElementById('sound-warning');
 const sound_error = document.getElementById('sound-error');
+const sound_beep = document.getElementById('sound-beep');
 
 notify = (message, type) => {
     playsound(type);
@@ -24,7 +25,7 @@ notify = (message, type) => {
                 icon: 'fas fa-danger',
                 message
             });
-
+            break;
     }
 }
 
@@ -38,6 +39,9 @@ playsound = (type) => {
             break;
         case 'error':
             sound_error.play();
+            break;
+        case 'beep':
+            sound_beep.play();
             break;
     }
 }
@@ -102,23 +106,33 @@ $(document).on('change', '.input-text', function () {
     maxValue = parseInt($(this).attr('max'));
     valueCurrent = parseInt($(this).val());
 
-    name = $(this).attr('name');
-    if (valueCurrent >= minValue) {
-        $(".btn-number[data-type='minus']").removeAttr('disabled')
+    if (!isNaN(valueCurrent)) {
+        if (valueCurrent >= minValue) {
+            $(".btn-number[data-type='minus']").removeAttr('disabled')
+        } else {
+            notify('Min product quantity reached or exceeded', 'warning');
+            $(this).val($(this).data('oldValue'));
+        }
+        if (valueCurrent <= maxValue) {
+            $(".btn-number[data-type='plus']").removeAttr('disabled')
+        } else {
+            notify('Max product quantity reached or exceeded', 'warning');
+            $(this).val($(this).data('oldValue'));
+        }
     } else {
-        notify('Min product quantity reached or exceeded', 'warning');
-        $(this).val($(this).data('oldValue'));
-    }
-    if (valueCurrent <= maxValue) {
-        $(".btn-number[data-type='plus']").removeAttr('disabled')
-    } else {
-        notify('Max product quantity reached or exceeded', 'warning');
+        notify('Only numbers are allowed', 'error');
+
         $(this).val($(this).data('oldValue'));
     }
 
 
 });
-$(document).on('keydown', ".input-text", function (e) {
+
+$(document).on('keydown', '.input-text', function (e) {
+    return onlyNumbers(e);
+});
+
+onlyNumbers = (e) => {
     // Allow: backspace, delete, tab, escape, enter and .
     if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 190]) !== -1 ||
         // Allow: Ctrl+A
@@ -132,4 +146,4 @@ $(document).on('keydown', ".input-text", function (e) {
     if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
         e.preventDefault();
     }
-});
+}
