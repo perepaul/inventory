@@ -88,13 +88,13 @@
 
                                 <div class="form-group text-sm">
                                     <label for="#">Discount %</label>
-                                    <input type="text" class="form-control" id="exampleInputEmail1"
+                                    <input type="text" class="form-control onlydigits" id="total_discount"
                                         placeholder="Discount Price">
                                 </div>
 
                                 <div class="form-group text-sm">
-                                    <label for="#">Total</label>
-                                    <input type="text" class="form-control" id="exampleInputEmail1"
+                                    <label for="#">Grand Total</label>
+                                    <input type="text" class="form-control onlydigits" id="grand_total"
                                         placeholder="Total ">
                                 </div>
                                 <div class="form-group text-sm">
@@ -129,8 +129,13 @@
     $(function () {
         boot();
 
+        $(document).on('keydown', '.onlydigits', function (e) {
+            return onlyNumbers(e);
+        });
+
         $('#product_search').select2({
             placeholder: "Search products by Sku, Name or Scan Barcode",
+            "allowClear":true,
             "language": {
             "noResults": function(){
             return "No products foound";
@@ -163,7 +168,7 @@
                 data:{id}
             }).then(
                 res =>{
-                    mountItems(res.data);
+                    mountItems(res);
                     playsound('beep')
                 },
 
@@ -178,17 +183,33 @@
                         }
                 })
         })
+
     });
 
     function boot(){
         $.ajax('sales/boot')
         .then(res => {
                 if(res.data){
-                    mountItems(res.data);
+                    mountItems(res);
                 }
         });
     }
 
+    function update(id,value)
+    {
+        if(value == 0 || isNaN((value)))
+        {
+            return ;
+        }
+        $.ajax('sales/'+id+'/update/'+value)
+        .then(res => {
+            playsound('beep')
+            mountItems(res)
+        },
+        err => {
+            console.log(err)
+        })
+    }
     function delete_sale_item(id)
     {
         $.ajax('sales/'+id+'/delete')
@@ -196,7 +217,7 @@
             if(res.success)
             {
                 playsound('beep')
-               mountItems(res.data);
+               mountItems(res);
             }
         },
         err=>{
@@ -221,7 +242,7 @@
                 if(res.data)
                 {
                     playsound('beep');
-                    mountItems(res.data)
+                    mountItems(res)
                 }
             },
             err => {
@@ -236,7 +257,12 @@
 
     function mountItems(data)
     {
-        $('#table-details').html(data)
+        html = data.data.html;
+        grand_total = data.data.grand_total
+        total_discount = data.data.total_discount
+        $('#grand_total').val(grand_total);
+        $('#total_discount').val(total_discount);
+        $('#table-details').html(html)
     }
 </script>
 @stop

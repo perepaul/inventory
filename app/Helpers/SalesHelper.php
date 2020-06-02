@@ -58,13 +58,14 @@ class SalesHelper
         $sale->sale_items()->save($saleItem);
     }
 
-    public function updateSale($saleItem, $qty)
+    public function updateSale($id, $qty)
     {
+        $sale_item = $this->filterSale($id);
         $param = ['quantity' => $qty];
         if ($qty > 0) {
-            $saleItem->update($param);
+            return  $sale_item->first()->update($param);
         } else {
-            $saleItem->delete();
+            return $sale_item->delete();
         }
     }
 

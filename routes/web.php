@@ -42,6 +42,7 @@ Route::middleware('web')->group(function () {
     Route::get('sales/add', 'SalesController@addProduct')->name('sales.add-product');
     Route::get('sales/{id}/delete', 'SalesController@deleteItem')->name('sales.delete.item');
     Route::get('sales/delete-all', 'SalesController@deleteAll')->name('sales.delete.all');
+    Route::get('sales/{id}/update/{quantity}', 'SalesController@update')->name('sales.update');
 
 
     Route::resource('inventories', 'ProductsController')->only(['index', 'create', 'store', 'edit', 'update']);

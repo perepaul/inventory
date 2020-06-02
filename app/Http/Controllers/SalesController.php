@@ -28,22 +28,6 @@ class SalesController extends Controller
         return $this->returnRes();
     }
 
-    private function returnRes()
-    {
-        $sale = $this->salesHelper->sale();
-        $markup = '';
-        foreach ($sale->sale_items->all() as $saleItem) {
-            $markup .= $this->tableRow($saleItem->product, $saleItem->quantity);
-        }
-
-        if (empty($markup)) {
-            $markup = '<tr><td colspan="5" class="text-center text-muted">Nothing Here!</td></tr>';
-        }
-        return response()->json([
-            'success' => true,
-            'data' => $markup
-        ]);
-    }
 
     public function search(Request $request)
     {
@@ -75,8 +59,14 @@ class SalesController extends Controller
                 'type' => 'warning'
             ], 400);
         }
+        return $this->returnRes();
+    }
 
-
+    public function update($id, $quantity)
+    {
+        $updated = $this->salesHelper->updateSale($id, $quantity);
+        if (!$updated) {
+        }
         return $this->returnRes();
     }
 
@@ -107,15 +97,40 @@ class SalesController extends Controller
         return  $this->returnRes();
     }
 
-    public function tableRow($product, $quantity = 1)
+    private function returnRes()
     {
-        $markup = '<tr>';
+        $sale = $this->salesHelper->sale();
+        $markup = '';
+        $total_discount = 0;
+        $grand_total = 0;
+        foreach ($sale->sale_items->all() as $saleItem) {
+            $total_discount += $saleItem->product->discount * $saleItem->quantity;
+            $grand_total += $saleItem->product->price * $saleItem->quantity;
+            $markup .= $this->tableRow($saleItem->product, $saleItem->quantity);
+        }
+
+        if (empty($markup)) {
+            $markup = '<tr><td colspan="5" class="text-center text-muted">Nothing Here!</td></tr>';
+        }
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'html' => $markup,
+                'grand_total' => format_currency($grand_total),
+                'total_discount' => format_currency($total_discount)
+            ]
+        ]);
+    }
+
+    private function tableRow($product, $quantity = 1)
+    {
+        $markup = '<tr id="' . $product->id . '">';
         $markup .=    '<td>' . $product->name . '</td>';
         $markup .=     '<td>';
-        $markup .=    view('partials.select', ['product' => $product]);
+        $markup .=    view('partials.select', ['product' => $product, 'value' => $quantity]);
         $markup .=     '</td>';
         $markup .=    '<td>' . format_currency($product->price) . '</td>';
-        $markup .=    '<td><input type="text" name="discount" value="' . $product->discount . '" class="form-control"></td>';
+        $markup .=    '<td><input type="text" name="discount" value="' . $product->discount * $quantity . '" class="form-control onlydigits"></td>';
         $markup .=    '<td>' . format_currency($product->price * $quantity) . '</td>';
         $markup .=    '<td><button onclick="delete_sale_item(' . $product->id . ')" class=" btn text-danger text-lg btn-sm text-sm">&times;</i></button></td>';
         $markup .=    '</tr>';
