@@ -75,7 +75,7 @@ Route::get('/reports/employees', function () {
 });
 
 
-// Route::get('/sales', function () {
+Route::get('/recipts', function () {
 
-//     return view('sales.index');
-// });
+    return view('recipts.index');
+});
