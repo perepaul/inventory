@@ -117,6 +117,7 @@ class ProductsController extends Controller
     {
         $uniqueRule = (($update) && !is_null($ignore_id)) ? "unique:products,username,{$ignore_id}|" : "unique:products|";
         $sometimes = ($update) ? 'sometimes|' : '';
+        // dd($uniqueRule);
 
         // dd($uniqueRule);
         return $request->validate(

@@ -132,10 +132,10 @@
         $(document).on('keydown', '.onlydigits', function (e) {
             return onlyNumbers(e);
         });
-
+        var placeholder = 'i am the placeholder';
         $('#product_search').select2({
             placeholder: "Search products by Sku, Name or Scan Barcode",
-            "allowClear":true,
+            allowClear: true,
             "language": {
             "noResults": function(){
             return "No products foound";
@@ -162,14 +162,17 @@
 
         $(document).on('change','#product_search', function(e){
             var id = e.target.value;
+            if(id==null||id=='undefined'||id==""){
+                return false;
+            }
             $.ajax({
                 url:'/sales/add',
                 method: 'get',
                 data:{id}
             }).then(
                 res =>{
-                    mountItems(res);
                     playsound('beep')
+                    mountItems(res);
                 },
 
                 err => {
@@ -181,6 +184,7 @@
                             playsound('error')
                             notify('Product could not be added','error')
                         }
+                        clearSelect()
                 })
         })
 
@@ -208,6 +212,7 @@
         },
         err => {
             console.log(err)
+            clearSelect()
         })
     }
     function delete_sale_item(id)
@@ -229,6 +234,7 @@
                 playsound('error')
                 notify('Oops!! an error occured','error')
             }
+            clearSelect()
         })
     }
 
@@ -251,9 +257,11 @@
                 {
                     notify(payload.message,payload.type)
                 }
+                clearSelect()
             })
         }
     }
+
 
     function mountItems(data)
     {
@@ -263,6 +271,12 @@
         $('#grand_total').val(grand_total);
         $('#total_discount').val(total_discount);
         $('#table-details').html(html)
+        clearSelect()
+    }
+
+    function clearSelect()
+    {
+        $('#product_search').val(null).trigger('change')
     }
 </script>
 @stop
