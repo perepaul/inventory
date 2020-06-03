@@ -99,7 +99,7 @@
                                 </div>
                                 <div class="form-group text-sm">
                                     <label for="#">Payment Method</label>
-                                    <select name="method" id="method" class="form-control">
+                                    <select name="payment_method" id="payment_method" class="form-control">
                                         @foreach ($payment_methods as $method)
                                         <option value="{{$method->id}}" @if($method->id == 1)selected
                                             @endif>{{$method->name}}</option>
@@ -109,7 +109,7 @@
                                 </div>
                                 <div class="col-md-12 justify-content-between d-flex">
                                     <button onclick="deleteSale()" class="btn btn-warning">Cancel</button>
-                                    <button class="btn btn-success">Checkout </button>
+                                    <button onclick="validateCheckout()" class="btn btn-success">Checkout </button>
                                 </div>
                             </div>
 
@@ -261,6 +261,61 @@
             })
         }
     }
+
+    function validateCheckout()
+    {
+        grand_total = $('#grand_total').val()
+        total_discount = $('#total_discount').val()
+        payment_method = $('#payment_method').val()
+        r_grand_total = parseInt(grand_total.replace(',',''))
+        r_total_discount = parseInt(total_discount.replace(',',''))
+
+        if(typeof(payment_method) == 'null' || payment_method == "" || typeof(payment_method) == 'undefined'|| isNaN(payment_method) )
+        {
+            notify('select payment method','warning')
+            return false;
+        }
+
+
+        if(r_total_discount > r_grand_total )
+        {
+            text = "Total Discount is grater than the Grand total"
+            Swal.fire({
+                title: 'Are you sure?',
+                text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continue anyways!'
+            }).
+                then((result) => {
+                    if (result.value) {
+                        checkout(r_grand_total,r_total_discount,payment_method);
+                    }
+            })
+
+        }else{
+            checkout(r_grand_total,r_total_discount,payment_method);
+        }
+
+    }
+
+    function checkout(grand_total, total_discount, payment_method_id)
+    {
+        _token = '{{csrf_token()}}'
+        $.ajax({
+            method:'post',
+            url:'sales/checkout',
+            data:{
+                _token,
+                grand_total,
+                total_discount,
+                payment_method_id
+            }
+        }).then(res=>console.log(res),err=>console.log(err))
+    }
+
 
 
     function mountItems(data)

@@ -17,6 +17,7 @@ class CreateSalesTable extends Migration
             $table->id();
             $table->string('reference_no')->unique();
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('payment_method_id')->nullable();
             $table->integer('status')->default(0);
             $table->integer('discount')->nullable();
             $table->integer('total')->nullable();

@@ -88,6 +88,13 @@ class SalesHelper
         return true;
     }
 
+    public function checkout($data)
+    {
+        $sale = $this->sale();
+        $data['status'] = 1;
+        return $sale->update($data);
+    }
+
     public function saleQuantityAdapter($product_id, $qty)
     {
         $sale = $this->sale();

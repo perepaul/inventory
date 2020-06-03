@@ -26,10 +26,6 @@ Route::middleware('web')->group(function () {
 });
 
 
-Route::get('/iventory/edit', function () {
-
-    return view('products.edit');
-});
 Route::get('get-role-permissions/{id}', 'EmployeeController@getRolePermissions');
 
 Route::middleware('web')->group(function () {
@@ -43,11 +39,11 @@ Route::middleware('web')->group(function () {
     Route::get('sales/{id}/delete', 'SalesController@deleteItem')->name('sales.delete.item');
     Route::get('sales/delete-all', 'SalesController@deleteAll')->name('sales.delete.all');
     Route::get('sales/{id}/update/{quantity}', 'SalesController@update')->name('sales.update');
+    Route::post('sales/checkout','SalesController@checkout')->name('sales.checkout');
 
 
     Route::resource('inventories', 'ProductsController')->only(['index', 'create', 'store', 'edit', 'update']);
     Route::get('inventories/{inventory}/destroy', 'ProductsController@destroy')->name('inventories.destroy');
-    // Route::get('inventories/{inventory}')->name('inventories.destroy');
     Route::get('/profile', 'EmployeeController@showProfileForm');
     Route::post('/profile/{id}', 'EmployeeController@updateProfile')->name('user.updateProfile');
     Route::get('/users', 'EmployeeController@index')->name('user.index');

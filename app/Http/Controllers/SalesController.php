@@ -97,6 +97,18 @@ class SalesController extends Controller
         return  $this->returnRes();
     }
 
+    public function checkout(Request $request)
+    {
+        $request->validate([
+            'grand_total'=>'required|numeric',
+            'total_discount'=>'required|numeric',
+            'payment_method_id'=>'required|numeric'
+        ]);
+
+        return $this->salesHelper->checkout($request->except('_token'));
+
+    }
+
     private function returnRes()
     {
         $sale = $this->salesHelper->sale();
