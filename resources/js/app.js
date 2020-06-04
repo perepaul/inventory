@@ -1,5 +1,11 @@
 require('./bootstrap');
 
+$(document).ajaxComplete(function myErrorHandler (event, xhr, ajaxOptions, thrownError) {
+    if (xhr.status == 401) {
+        window.location.href = "/login";
+    }
+});
+
 const sound_success = document.getElementById('sound-success');
 const sound_warning = document.getElementById('sound-warning');
 const sound_error = document.getElementById('sound-error');
@@ -22,7 +28,7 @@ notify = (message, type) => {
             break;
         case 'warning':
             iziToast.warning({
-                icon: 'fas fa-danger',
+                icon: 'fas fa-exclamation-triangle',
                 message
             });
             break;
@@ -44,6 +50,37 @@ playsound = (type) => {
             sound_beep.play();
             break;
     }
+}
+
+validateUpdate = (elem) => {
+    valid = false;
+    minValue = parseInt($(elem).attr('min'));
+    maxValue = parseInt($(elem).attr('max'));
+    valueCurrent = parseInt($(elem).val());
+
+    if (!isNaN(valueCurrent)) {
+        if (valueCurrent >= minValue) {
+            $(".btn-number[data-type='minus']").removeAttr('disabled')
+            valid = true;
+        } else {
+            notify('Min product quantity reached or exceeded', 'warning');
+            $(elem).val($(elem).data('oldValue'));
+            valid = false;
+        }
+        if (valueCurrent <= maxValue) {
+            $(".btn-number[data-type='plus']").removeAttr('disabled')
+            valid = true;
+        } else {
+            valid = false;
+            notify('Max product quantity reached or exceeded', 'warning');
+            $(elem).val($(elem).data('oldValue'));
+        }
+    } else {
+        valid = false;
+        notify('Only numbers are allowed', 'error');
+        $(elem).val($(elem).data('oldValue'));
+    }
+    return valid;
 }
 
 handleRoleSelect = (val) => {
@@ -100,33 +137,11 @@ $(document).on('click', '.btn-number', function (e) {
 $(document).on('focusin', '.input-text', function () {
     $(this).data('oldValue', $(this).val());
 });
-$(document).on('change', '.input-text', function () {
-
-    minValue = parseInt($(this).attr('min'));
-    maxValue = parseInt($(this).attr('max'));
-    valueCurrent = parseInt($(this).val());
-
-    if (!isNaN(valueCurrent)) {
-        if (valueCurrent >= minValue) {
-            $(".btn-number[data-type='minus']").removeAttr('disabled')
-        } else {
-            notify('Min product quantity reached or exceeded', 'warning');
-            $(this).val($(this).data('oldValue'));
-        }
-        if (valueCurrent <= maxValue) {
-            $(".btn-number[data-type='plus']").removeAttr('disabled')
-        } else {
-            notify('Max product quantity reached or exceeded', 'warning');
-            $(this).val($(this).data('oldValue'));
-        }
-    } else {
-        notify('Only numbers are allowed', 'error');
-
-        $(this).val($(this).data('oldValue'));
-    }
 
 
-});
+
+
+
 
 $(document).on('keydown', '.input-text', function (e) {
     return onlyNumbers(e);

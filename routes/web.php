@@ -28,7 +28,7 @@ Route::middleware('web')->group(function () {
 
 Route::get('get-role-permissions/{id}', 'EmployeeController@getRolePermissions');
 
-Route::middleware('web')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/', function () {
         return view('home');
     })->name('home');
@@ -39,7 +39,7 @@ Route::middleware('web')->group(function () {
     Route::get('sales/{id}/delete', 'SalesController@deleteItem')->name('sales.delete.item');
     Route::get('sales/delete-all', 'SalesController@deleteAll')->name('sales.delete.all');
     Route::get('sales/{id}/update/{quantity}', 'SalesController@update')->name('sales.update');
-    Route::post('sales/checkout','SalesController@checkout')->name('sales.checkout');
+    Route::post('sales/checkout', 'SalesController@checkout')->name('sales.checkout');
 
 
     Route::resource('inventories', 'ProductsController')->only(['index', 'create', 'store', 'edit', 'update']);
@@ -73,5 +73,5 @@ Route::get('/reports/employees', function () {
 
 Route::get('/recipts', function () {
 
-    return view('recipts.index');
+    return view('receipts.index');
 });

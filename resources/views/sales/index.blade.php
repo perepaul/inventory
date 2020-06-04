@@ -132,7 +132,7 @@
         $(document).on('keydown', '.onlydigits', function (e) {
             return onlyNumbers(e);
         });
-        var placeholder = 'i am the placeholder';
+
         $('#product_search').select2({
             placeholder: "Search products by Sku, Name or Scan Barcode",
             allowClear: true,
@@ -199,21 +199,32 @@
         });
     }
 
-    function update(id,value)
+    function update(id,elem)
     {
-        if(value == 0 || isNaN((value)))
+        if(elem.value == 0 || isNaN(elem.value))
         {
             return ;
         }
-        $.ajax('sales/'+id+'/update/'+value)
-        .then(res => {
-            playsound('beep')
-            mountItems(res)
-        },
-        err => {
-            console.log(err)
-            clearSelect()
-        })
+        valid = validateUpdate(elem)
+       if(valid){
+           $.ajax('sales/'+id+'/update/'+elem.value)
+           .then(res => {
+               playsound('beep')
+               mountItems(res)
+           },
+           err => {
+               payload = err.responseJSON;
+               if(payload.message)
+               {
+                notify(payload.message,payload.type)
+               }else{
+                   notify('Oops! an error occured!','error')
+               }
+               clearSelect()
+           })
+       }else{
+
+       }
     }
     function delete_sale_item(id)
     {
@@ -313,13 +324,30 @@
                 total_discount,
                 payment_method_id
             }
-        }).then(res=>console.log(res),err=>console.log(err))
+        }).then(
+            res=>{
+                notify('Sale completed Successfully','success')
+                mountItems(res,true)
+            },
+            err=>{
+                payload = err.responseJSON
+                if(payload.message)
+                {
+                    notify(payload.message,payload.type)
+                }else{
+                    notify('Oops! checkout failed','error');
+                }
+            });
     }
 
 
 
-    function mountItems(data)
+    function mountItems(data,checkout=false)
     {
+        if(checkout){
+            $(data.printable).insertBefore( ".wrapper" );
+            handlePrint();
+        }
         html = data.data.html;
         grand_total = data.data.grand_total
         total_discount = data.data.total_discount
@@ -327,6 +355,11 @@
         $('#total_discount').val(total_discount);
         $('#table-details').html(html)
         clearSelect()
+    }
+
+    function handlePrint()
+    {
+
     }
 
     function clearSelect()

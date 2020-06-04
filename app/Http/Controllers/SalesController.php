@@ -50,8 +50,6 @@ class SalesController extends Controller
 
     public function addProduct(Request $request)
     {
-        // $product = $this->productHelper->findProduct((int) $request->id);
-        // dd('here');
         $sale_items = $this->salesHelper->saleQuantityAdapter($request->id, 1);
         if ($sale_items == 'exists') {
             return response()->json([
@@ -66,6 +64,11 @@ class SalesController extends Controller
     {
         $updated = $this->salesHelper->updateSale($id, $quantity);
         if (!$updated) {
+            return response()->json([
+                'success' => false,
+                'message' => 'item failed to update',
+                'type' => 'error'
+            ], 400);
         }
         return $this->returnRes();
     }
@@ -100,17 +103,25 @@ class SalesController extends Controller
     public function checkout(Request $request)
     {
         $request->validate([
-            'grand_total'=>'required|numeric',
-            'total_discount'=>'required|numeric',
-            'payment_method_id'=>'required|numeric'
+            'grand_total' => 'required|numeric',
+            'total_discount' => 'required|numeric',
+            'payment_method_id' => 'required|numeric'
         ]);
+        $checkedout = $this->salesHelper->checkout($request->except('_token'));
+        if (!$checkedout) {
+            return response()->json([
+                'succes' => false,
+                'message' => 'Add items to sale before checking out',
+                'type' => 'error'
+            ], 400);
+        }
 
-        return $this->salesHelper->checkout($request->except('_token'));
-
+        return $this->returnRes(true);
     }
 
-    private function returnRes()
+    private function returnRes($update = false)
     {
+
         $sale = $this->salesHelper->sale();
         $markup = '';
         $total_discount = 0;
@@ -124,16 +135,27 @@ class SalesController extends Controller
         if (empty($markup)) {
             $markup = '<tr><td colspan="5" class="text-center text-muted">Nothing Here!</td></tr>';
         }
+        $data = array(
+            'html' => $markup,
+            'grand_total' => format_currency($grand_total),
+            'total_discount' => format_currency($total_discount)
+        );
+        if ($update) {
+            $printData = $this->gatherPrintData();
+            $data['printable'] = $printData;
+        }
+        dd($data['printable']);
         return response()->json([
             'success' => true,
-            'data' => [
-                'html' => $markup,
-                'grand_total' => format_currency($grand_total),
-                'total_discount' => format_currency($total_discount)
-            ]
+            'data' => $data
         ]);
     }
-
+    private function gatherPrintData()
+    {
+        $lastSale = $this->salesHelper->getUserLastSale();
+        $view =  view('receipts.index', ['sale' => '']);
+        return $view;
+    }
     private function tableRow($product, $quantity = 1)
     {
         $markup = '<tr id="' . $product->id . '">';

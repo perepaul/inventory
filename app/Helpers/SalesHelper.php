@@ -12,6 +12,11 @@ class SalesHelper
 
     public function __construct(Sales $sales, ProductHelper $product)
     {
+        // dd(auth()->guest());
+        // if (auth()->user()) {
+        //     session()->flash('error', 'Please you have to be logged-in to the application to continue.');
+        //     abort(401);
+        // }
         $this->salesModel = $sales;
         $this->productHelper = $product;
     }
@@ -91,8 +96,13 @@ class SalesHelper
     public function checkout($data)
     {
         $sale = $this->sale();
-        $data['status'] = 1;
-        return $sale->update($data);
+        if ($sale->sale_items()->get()->count() > 0) {
+
+            $data['status'] = 1;
+            return $sale->update($data);
+        } else {
+            return false;
+        }
     }
 
     public function saleQuantityAdapter($product_id, $qty)
@@ -109,6 +119,14 @@ class SalesHelper
             return 'exists';
         }
         return $this->sale()->sale_items;
+    }
+
+    public function getUserLastSale()
+    {
+        $user = auth()->user();
+
+        $lastSale = $user->sales()->where('status', 1)->orderBy('id', 'desc')->first();
+        return $lastSale;
     }
 
     public function getUserSaleItem($id)
