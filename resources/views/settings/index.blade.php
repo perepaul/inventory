@@ -133,7 +133,7 @@
                             <div class="form-group">
                                 <label for="#">Address</label>
                                 <textarea name="address" id="address" cols="30" rows="2" class="form-control"
-                                    placeholder="Enter address">@if(isset($s->phone_2)){{$s->phone_2}} @else {{old('phone_2')}}@endif</textarea>
+                                    placeholder="Enter address">@if(isset($s->address)){{$s->address}} @else {{old('address')}}@endif</textarea>
                             </div>
                         </div>
                         <div class="col-md-6">
