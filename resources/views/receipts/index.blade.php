@@ -12,15 +12,15 @@
     <div class="invoice-box">
         <table cellpadding="0" cellspacing="0">
             <tr class="top">
-                <td colspan="2">
+                <td colspan="3">
                     <table>
                         <tr>
                             <td class="title">
-                                <center>
 
-                                    <img src="https://www.sparksuite.com/images/logo.png"
-                                        style="width:100%; max-width:300px;">
-                                </center>
+                                <div class="center">
+                                    <img src="https://www.sparksuite.com/images/logo.png">
+                                </div>
+
                             </td>
 
                             {{-- <td>
@@ -52,7 +52,7 @@
                     <tr class="push-down">
                         <td colspan="3">
                             <center>
-                                Payment Method&nbsp;:&nbsp;'method here'
+                                Payment Method&nbsp;:&nbsp;{{ucfirst($payment_method->name)??'transfer'}}
                             </center>
                         </td>
                     </tr>
@@ -74,6 +74,7 @@
             </td>
         </tr>
 
+        @foreach($sale->sale_items as $saleItem)
         <tr class="item">
             <td>
                 Website design
@@ -83,7 +84,8 @@
                 $300.00
             </td>
         </tr>
-        <tr class="item">
+        @endforeach
+        {{-- <tr class="item">
             <td>
                 Website design
             </td>
@@ -110,7 +112,7 @@
             <td>
                 $10.00
             </td>
-        </tr>
+        </tr> --}}
 
         <tr class="total">
             <td></td>
@@ -144,13 +146,21 @@
             size: auto;
             margin: 0mm;
         }
+        @media print {
+            *, table, .invoice-box{
+                font-size: 8px !important;
+            }
+            .invoice-box {
+                box-shadow: none !important;
+            }
+        }
 
         .invoice-box {
             max-width: 800px;
             margin: auto;
             padding: 30px;
             border: 1px solid #eee;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+            /* box-shadow: 0 0 10px rgba(0, 0, 0, .15); */
             font-size: 16px;
             line-height: 24px;
             font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
@@ -181,9 +191,23 @@
             line-height: 45px;
             color: #333;
         }
+        .invoice-box .center{
+            /* height:5000px; */
+            /* margin: auto; */
+            /* max-width: 500px; */
+            /* width: 300px; */
+            width: 100%;
+
+        }
+        .invoice-box .center img{
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 20%;
+        }
 
         .invoice-box table tr.information table tr.push-down td {
-            padding-bottom: 30px;
+            padding-bottom: 8px;
         }
 
         .invoice-box table tr.heading td {
@@ -243,7 +267,7 @@
     <script src="{{asset('js/app.js')}}"></script>
     <script>
         $(function(){
-            print();
+            // print();
         })
 
     function print(){

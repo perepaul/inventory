@@ -107,7 +107,11 @@ class SalesController extends Controller
             'total_discount' => 'required|numeric',
             'payment_method_id' => 'required|numeric'
         ]);
-        $checkedout = $this->salesHelper->checkout($request->except('_token'));
+        $data = $request->only('payment_method_id');
+        $data['discount'] = $request->total_discount;
+        $data['total'] = $request->grand_total;
+        // dd($data);
+        $checkedout = $this->salesHelper->checkout($data);
         if (!$checkedout) {
             return response()->json([
                 'succes' => false,
@@ -153,8 +157,9 @@ class SalesController extends Controller
     public function printRecept($reference_no)
     {
         $sale = $this->salesHelper->gatherPrintData($reference_no);
+        $payment_method = PaymentMethod::where('id',$sale->payment_method_id)->first();
         $store_config = storeSettings();
-        return view('receipts.index', compact('sale', 'store_config'));
+        return view('receipts.index', compact('sale', 'store_config','payment_method'));
     }
     private function gatherPrintData()
     {
