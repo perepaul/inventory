@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('sales/delete-all', 'SalesController@deleteAll')->name('sales.delete.all');
     Route::get('sales/{id}/update/{quantity}', 'SalesController@update')->name('sales.update');
     Route::post('sales/checkout', 'SalesController@checkout')->name('sales.checkout');
+    Route::get('sales/{reference}/print', 'SalesController@printRecept')->name('sales.print.receipt');
 
 
     Route::resource('inventories', 'ProductsController')->only(['index', 'create', 'store', 'edit', 'update']);

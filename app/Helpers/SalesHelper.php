@@ -129,6 +129,11 @@ class SalesHelper
         return $lastSale;
     }
 
+    public function gatherPrintData($reference_no)
+    {
+        return $this->salesModel->where('reference_no', $reference_no)->first();
+    }
+
     public function getUserSaleItem($id)
     {
         return $this->filterSale($id);

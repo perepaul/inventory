@@ -16,4 +16,9 @@ class Sales extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+
+    public function formatDate($format = 'd M, Y')
+    {
+        return  \Carbon\Carbon::parse($this->attributes['created_at'])->format($format);
+    }
 }

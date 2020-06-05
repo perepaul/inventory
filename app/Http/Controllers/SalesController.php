@@ -119,7 +119,7 @@ class SalesController extends Controller
         return $this->returnRes(true);
     }
 
-    private function returnRes($update = false)
+    private function returnRes($checkout = false)
     {
 
         $sale = $this->salesHelper->sale();
@@ -140,21 +140,26 @@ class SalesController extends Controller
             'grand_total' => format_currency($grand_total),
             'total_discount' => format_currency($total_discount)
         );
-        if ($update) {
+        if ($checkout) {
             $printData = $this->gatherPrintData();
-            $data['printable'] = $printData;
+            $data['receipt_ref'] = $printData;
         }
-        dd($data['printable']);
         return response()->json([
             'success' => true,
             'data' => $data
         ]);
     }
+
+    public function printRecept($reference_no)
+    {
+        $sale = $this->salesHelper->gatherPrintData($reference_no);
+        $store_config = storeSettings();
+        return view('receipts.index', compact('sale', 'store_config'));
+    }
     private function gatherPrintData()
     {
         $lastSale = $this->salesHelper->getUserLastSale();
-        $view =  view('receipts.index', ['sale' => '']);
-        return $view;
+        return $lastSale->reference_no;
     }
     private function tableRow($product, $quantity = 1)
     {

@@ -44,6 +44,16 @@ function deleteFile($file, $path)
     }
 }
 
+function storeSettings()
+{
+    if (!\Schema::hasTable('store_settings')) {
+        return false;
+    }
+
+    $settings  =  \DB::table('store_settings')->where('id', 1)->get()->first();
+    return collect($settings)->all();
+}
+
 function getStatus($status)
 {
     return ($status == 'on') ? 1 : 0;

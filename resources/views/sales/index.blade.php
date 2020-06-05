@@ -345,8 +345,7 @@
     function mountItems(data,checkout=false)
     {
         if(checkout){
-            $(data.printable).insertBefore( ".wrapper" );
-            handlePrint();
+            handlePrint(data.data.receipt_ref);
         }
         html = data.data.html;
         grand_total = data.data.grand_total
@@ -357,9 +356,9 @@
         clearSelect()
     }
 
-    function handlePrint()
+    function handlePrint(ref)
     {
-
+        window.location.href = "sales/"+ref+"/print"
     }
 
     function clearSelect()

@@ -18,6 +18,7 @@ require('overlayscrollbars');
 require('../../vendor/almasaeed2010/adminlte/dist/js/adminlte');
 require('bootstrap4-toggle');
 window.iziToast = iziToast = require('izitoast');
+window.printThis = require('print-this');
 
 iziToast.settings({
     timeout: 3000,
