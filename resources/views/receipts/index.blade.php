@@ -243,7 +243,7 @@
     <script src="{{asset('js/app.js')}}"></script>
     <script>
         $(function(){
-            // print();
+            print();
         })
 
     function print(){
