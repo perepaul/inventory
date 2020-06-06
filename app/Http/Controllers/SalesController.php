@@ -50,10 +50,15 @@ class SalesController extends Controller
 
     public function addProduct(Request $request)
     {
-        $sale_items = $this->salesHelper->saleQuantityAdapter($request->id, 1);
+        $sale_items = $this->salesHelper->addToSale($request->id, 1);
         if ($sale_items == 'exists') {
             return response()->json([
                 'message' => "Product already added to sale",
+                'type' => 'warning'
+            ], 400);
+        } elseif ($sale_items == 'out_of_stock') {
+            return response()->json([
+                'message' => "Product out of stock",
                 'type' => 'warning'
             ], 400);
         }
@@ -103,15 +108,23 @@ class SalesController extends Controller
     public function checkout(Request $request)
     {
         $request->validate([
-            'grand_total' => 'required|numeric',
+            'total' => 'required|numeric',
             'total_discount' => 'required|numeric',
             'payment_method_id' => 'required|numeric'
         ]);
         $data = $request->only('payment_method_id');
         $data['discount'] = $request->total_discount;
-        $data['total'] = $request->grand_total;
+        $data['total'] = $request->total;
         // dd($data);
         $checkedout = $this->salesHelper->checkout($data);
+        if (is_array($checkedout)) {
+            $plural = ($checkedout['count'] > 1) ? 's are ' : ' is ';
+            return response()->json([
+                'succes' => false,
+                'message' => $checkedout['count'] . ' Product' . $plural . 'out of stock',
+                'type' => 'warning'
+            ], 400);
+        }
         if (!$checkedout) {
             return response()->json([
                 'succes' => false,
@@ -129,10 +142,11 @@ class SalesController extends Controller
         $sale = $this->salesHelper->sale();
         $markup = '';
         $total_discount = 0;
-        $grand_total = 0;
+        $total = 0;
         foreach ($sale->sale_items->all() as $saleItem) {
             $total_discount += $saleItem->product->discount * $saleItem->quantity;
-            $grand_total += $saleItem->product->price * $saleItem->quantity;
+            $total += ($saleItem->product->price * $saleItem->quantity);
+            // $grand_total += $g_total - $total_discount;
             $markup .= $this->tableRow($saleItem->product, $saleItem->quantity);
         }
 
@@ -141,7 +155,8 @@ class SalesController extends Controller
         }
         $data = array(
             'html' => $markup,
-            'grand_total' => format_currency($grand_total),
+            'total' => format_currency($total - $total_discount),
+            'sub_total' => format_currency($total),
             'total_discount' => format_currency($total_discount)
         );
         if ($checkout) {
@@ -157,9 +172,9 @@ class SalesController extends Controller
     public function printRecept($reference_no)
     {
         $sale = $this->salesHelper->gatherPrintData($reference_no);
-        $payment_method = PaymentMethod::where('id',$sale->payment_method_id)->first();
+        $payment_method = PaymentMethod::where('id', $sale->payment_method_id)->first();
         $store_config = storeSettings();
-        return view('receipts.index', compact('sale', 'store_config','payment_method'));
+        return view('receipts.index', compact('sale', 'store_config', 'payment_method'));
     }
     private function gatherPrintData()
     {
@@ -174,7 +189,7 @@ class SalesController extends Controller
         $markup .=    view('partials.select', ['product' => $product, 'value' => $quantity]);
         $markup .=     '</td>';
         $markup .=    '<td>' . format_currency($product->price) . '</td>';
-        $markup .=    '<td><input type="text" name="discount" value="' . $product->discount * $quantity . '" class="form-control onlydigits"></td>';
+        $markup .=    '<td><input type="text" name="discount" value="' . $product->discount * $quantity . '" class="form-control onlydigits no-input"></td>';
         $markup .=    '<td>' . format_currency($product->price * $quantity) . '</td>';
         $markup .=    '<td><button onclick="delete_sale_item(' . $product->id . ')" class=" btn text-danger text-lg btn-sm text-sm">&times;</i></button></td>';
         $markup .=    '</tr>';

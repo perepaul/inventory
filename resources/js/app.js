@@ -6,28 +6,18 @@ $(document).ajaxComplete(function myErrorHandler (event, xhr, ajaxOptions, throw
     }
 });
 
+$(document).on('keypress', '.no-input', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    return false;
+})
+
 const sound_success = document.getElementById('sound-success');
 const sound_warning = document.getElementById('sound-warning');
 const sound_error = document.getElementById('sound-error');
 const sound_beep = document.getElementById('sound-beep');
 
-var socket = null;
-var socket_host = 'ws://127.0.0.1:6441';
-
-initializeSocket = function () {
-    try {
-        if (socket == null) {
-            socket = new WebSocket(socket_host);
-            socket.onopen = function () { };
-            socket.onmessage = function (msg) { };
-            socket.onclose = function () {
-                socket = null;
-            };
-        }
-    } catch (e) {
-        console.log(e);
-    }
-};
 
 notify = (message, type, sound = true) => {
     if (sound == true) {

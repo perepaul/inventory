@@ -77,68 +77,36 @@
         @foreach($sale->sale_items as $saleItem)
         <tr class="item">
             <td>
-                Website design
+                {{$saleItem->product->name}}
             </td>
-            <td>2</td>
+            <td>{{$saleItem->quantity}}</td>
             <td>
-                $300.00
+                {{format_currency($saleItem->product->price*$saleItem->quantity,true)}}
             </td>
         </tr>
         @endforeach
-        {{-- <tr class="item">
-            <td>
-                Website design
-            </td>
-            <td>2</td>
-            <td>
-                $300.00
-            </td>
-        </tr>
-        <tr class="item">
-            <td>
-                Website design
-            </td>
-            <td>2</td>
-            <td>
-                $300.00
-            </td>
-        </tr>
-
-        <tr class="item last">
-            <td>
-                Domain name (1 year)
-            </td>
-            <td>2</td>
-            <td>
-                $10.00
-            </td>
-        </tr> --}}
-
         <tr class="total">
             <td></td>
             <td></td>
-            <td>
-                Total: $385.00<br>
+            <td width="200px">
+                <table style="text-align:right;">
+                    <tr>
+                        <td>Discount:</td>
+                        <td>{{format_currency($sale->discount,true)}}</td>
+                    </tr>
+                    <tr>
+                        <td>Subtotal:</td>
+                        <td>{{format_currency($sale->total+$sale->discount,true)}}</td>
+                    </tr>
+                    <tr>
+                        <td>Net Total:</td>
+                        <td>{{format_currency($sale->total,true)}}</td>
+                    </tr>
+                </table>
+                {{-- Discount: {{format_currency($sale->discount)}}<br>
+                Subtotal: {{format_currency($sale->total)}}<br> --}}
             </td>
         </tr>
-        {{-- <tr class="heading">
-            <td>
-                Payment Method
-            </td>
-
-            <td>
-                {{'method here'}}
-        </td>
-        </tr>
-        <tr class="details">
-            <td>
-                Check
-            </td>
-
-            <td>
-                1000
-            </td>
-        </tr> --}}
         </table>
     </div>
     <style>
@@ -146,12 +114,24 @@
             size: auto;
             margin: 0mm;
         }
+
         @media print {
-            *, table, .invoice-box{
-                font-size: 8px !important;
-            }
+
+            *,
+            table,
             .invoice-box {
+                font-size: 8px !important;
                 box-shadow: none !important;
+                border: none;
+                padding: none;
+            }
+
+            .invoice-box {
+                max-width: 1200px;
+                box-shadow: none !important;
+                border: none !important;
+                padding: none !important;
+                line-height: 14px;
             }
         }
 
@@ -160,7 +140,7 @@
             margin: auto;
             padding: 30px;
             border: 1px solid #eee;
-            /* box-shadow: 0 0 10px rgba(0, 0, 0, .15); */
+            box-shadow: 0 0 10px rgba(0, 0, 0, .15);
             font-size: 16px;
             line-height: 24px;
             font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
@@ -191,7 +171,8 @@
             line-height: 45px;
             color: #333;
         }
-        .invoice-box .center{
+
+        .invoice-box .center {
             /* height:5000px; */
             /* margin: auto; */
             /* max-width: 500px; */
@@ -199,7 +180,8 @@
             width: 100%;
 
         }
-        .invoice-box .center img{
+
+        .invoice-box .center img {
             display: block;
             margin-left: auto;
             margin-right: auto;
@@ -267,7 +249,7 @@
     <script src="{{asset('js/app.js')}}"></script>
     <script>
         $(function(){
-            // print();
+            print();
         })
 
     function print(){
@@ -291,6 +273,7 @@
         cancelButtonText:'No'
         }).then((result) => {
             if (result.value) {
+                window.localStorage.setItem('checkedout',true)
             window.location.href ='{{route("sales.index")}}'
             }else{
                 print()

@@ -87,14 +87,19 @@
                             <div class="p-3 bg-teal w-100 m-0">
 
                                 <div class="form-group text-sm">
-                                    <label for="#">Discount %</label>
-                                    <input type="text" class="form-control onlydigits" id="total_discount"
+                                    <label for="#">Discount</label>
+                                    <input type="text" class="form-control onlydigits no-input" id="total_discount"
                                         placeholder="Discount Price">
                                 </div>
 
                                 <div class="form-group text-sm">
+                                    <label for="#">Subtotal</label>
+                                    <input type="text" class="form-control onlydigits no-input" id="sub_total"
+                                        placeholder="Total ">
+                                </div>
+                                <div class="form-group text-sm">
                                     <label for="#">Grand Total</label>
-                                    <input type="text" class="form-control onlydigits" id="grand_total"
+                                    <input type="text" class="form-control onlydigits no-input" id="total"
                                         placeholder="Total ">
                                 </div>
                                 <div class="form-group text-sm">
@@ -191,6 +196,10 @@
     });
 
     function boot(){
+        if(window.localStorage.getItem('checkedout')){
+            notify('Sale completed successfully','success');
+            window.localStorage.removeItem('checkedout');
+        }
         $.ajax('sales/boot')
         .then(res => {
                 if(res.data){
@@ -275,11 +284,13 @@
 
     function validateCheckout()
     {
-        grand_total = $('#grand_total').val()
+        sub_total = $('#sub_total').val()
         total_discount = $('#total_discount').val()
         payment_method = $('#payment_method').val()
-        r_grand_total = parseInt(grand_total.replace(',',''))
+        total = $('#total').val()
+        r_sub_total = parseInt(sub_total.replace(',',''))
         r_total_discount = parseInt(total_discount.replace(',',''))
+        total = parseInt(total.replace(',',''))
 
         if(typeof(payment_method) == 'null' || payment_method == "" || typeof(payment_method) == 'undefined'|| isNaN(payment_method) )
         {
@@ -288,7 +299,7 @@
         }
 
 
-        if(r_total_discount > r_grand_total )
+        if(r_total_discount > r_sub_total)
         {
             text = "Total Discount is grater than the Grand total"
             Swal.fire({
@@ -302,17 +313,17 @@
             }).
                 then((result) => {
                     if (result.value) {
-                        checkout(r_grand_total,r_total_discount,payment_method);
+                        checkout(total,r_total_discount,payment_method);
                     }
             })
 
         }else{
-            checkout(r_grand_total,r_total_discount,payment_method);
+            checkout(total,r_total_discount,payment_method);
         }
 
     }
 
-    function checkout(grand_total, total_discount, payment_method_id)
+    function checkout(total, total_discount, payment_method_id)
     {
         _token = '{{csrf_token()}}'
         $.ajax({
@@ -320,13 +331,13 @@
             url:'sales/checkout',
             data:{
                 _token,
-                grand_total,
+                total,
                 total_discount,
                 payment_method_id
             }
         }).then(
             res=>{
-                notify('Sale completed Successfully','success')
+                // notify('Sale completed Successfully','success')
                 mountItems(res,true)
             },
             err=>{
@@ -348,9 +359,11 @@
             handlePrint(data.data.receipt_ref);
         }
         html = data.data.html;
-        grand_total = data.data.grand_total
+        total = data.data.total
         total_discount = data.data.total_discount
-        $('#grand_total').val(grand_total);
+        sub_total = data.data.sub_total
+        $('#sub_total').val(sub_total);
+        $('#total').val(total);
         $('#total_discount').val(total_discount);
         $('#table-details').html(html)
         clearSelect()

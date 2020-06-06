@@ -52,9 +52,18 @@ class SalesHelper
         return $sale;
     }
 
-    public function addToSale($sale, $product_id, $qty)
+    public function addToSale($product_id, $qty)
     {
+        $sale = $this->sale();
         $product = $this->productHelper->findProduct($product_id);
+        if ($this->filterSale($product_id)->count() > 1) {
+            dd($this->filterSale($product_id));
+            return 'exists';
+        }
+
+        if ($product->quantity <= 0) {
+            return 'out_of_stock';
+        }
         $saleItem = new SaleItem([
             'product_id' => $product->id,
             'quantity' => $qty,
@@ -96,13 +105,20 @@ class SalesHelper
     public function checkout($data)
     {
         $sale = $this->sale();
-        if ($sale->sale_items()->get()->count() > 0) {
-
-            $data['status'] = 1;
-            return $sale->update($data);
-        } else {
+        if ($sale->sale_items()->get()->count() <= 0) {
             return false;
         }
+        $out_of_stock = 0;
+        foreach ($sale->sale_items as $sale_item) {
+            $product = $sale_item->product;
+            if ($product->quantity <= 0) $out_of_stock++;
+            if ($out_of_stock <= 0) $product->update(['quantity' => ($product->quantity - $sale_item->quantity)]);
+        }
+        if ($out_of_stock > 0) {
+            return ['out_of_stock' => true, 'count' => $out_of_stock];
+        }
+        $data['status'] = 1;
+        return $sale->update($data);
     }
 
     public function saleQuantityAdapter($product_id, $qty)

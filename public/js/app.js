@@ -47755,30 +47755,16 @@ $(document).ajaxComplete(function myErrorHandler(event, xhr, ajaxOptions, thrown
     window.location.href = "/login";
   }
 });
+$(document).on('keypress', '.no-input', function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
+  return false;
+});
 var sound_success = document.getElementById('sound-success');
 var sound_warning = document.getElementById('sound-warning');
 var sound_error = document.getElementById('sound-error');
 var sound_beep = document.getElementById('sound-beep');
-var socket = null;
-var socket_host = 'ws://127.0.0.1:6441';
-
-initializeSocket = function initializeSocket() {
-  try {
-    if (socket == null) {
-      socket = new WebSocket(socket_host);
-
-      socket.onopen = function () {};
-
-      socket.onmessage = function (msg) {};
-
-      socket.onclose = function () {
-        socket = null;
-      };
-    }
-  } catch (e) {
-    console.log(e);
-  }
-};
 
 notify = function notify(message, type) {
   var sound = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -47970,6 +47956,7 @@ __webpack_require__(/*! bootstrap4-toggle */ "./node_modules/bootstrap4-toggle/j
 
 window.iziToast = iziToast = __webpack_require__(/*! izitoast */ "./node_modules/izitoast/dist/js/iziToast.js");
 window.printThis = __webpack_require__(/*! print-this */ "./node_modules/print-this/printThis.js");
+window.LStorage = window.localStorage;
 iziToast.settings({
   timeout: 3000,
   resetOnHover: false,

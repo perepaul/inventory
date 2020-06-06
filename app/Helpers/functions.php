@@ -59,9 +59,14 @@ function getStatus($status)
     return ($status == 'on') ? 1 : 0;
 }
 
-function format_currency($param)
+function format_currency($param, $symbol = false)
 {
-    return number_format($param);
+    $cur = '';
+    if ($symbol == true) {
+        $settings = storeSettings();
+        $cur = $settings['currency_sym'];
+    }
+    return $cur . number_format($param);
 }
 
 function generateRefNo()
