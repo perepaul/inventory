@@ -28,4 +28,9 @@ class ProductHelper
     {
         return $this->productModel->where('sku', 'LIKE', "%{$term}%")->orWhere('name', 'LIKE', "%{$term}%")->orderBy('name', 'asc')->get();
     }
+
+    public function addProductSku($sku)
+    {
+        return $this->productModel->where('sku', $sku)->firstOrFail();
+    }
 }

@@ -1921,6 +1921,1022 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./node_modules/devbridge-autocomplete/dist/jquery.autocomplete.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/devbridge-autocomplete/dist/jquery.autocomplete.js ***!
+  \*************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+*  Ajax Autocomplete for jQuery, version 1.4.11
+*  (c) 2017 Tomas Kirda
+*
+*  Ajax Autocomplete for jQuery is freely distributable under the terms of an MIT-style license.
+*  For details, see the web site: https://github.com/devbridge/jQuery-Autocomplete
+*/
+
+/*jslint  browser: true, white: true, single: true, this: true, multivar: true */
+/*global define, window, document, jQuery, exports, require */
+
+// Expose plugin as an AMD module if AMD loader is present:
+(function (factory) {
+    "use strict";
+    if (true) {
+        // AMD. Register as an anonymous module.
+        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+    } else {}
+}(function ($) {
+    'use strict';
+
+    var
+        utils = (function () {
+            return {
+                escapeRegExChars: function (value) {
+                    return value.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&");
+                },
+                createNode: function (containerClass) {
+                    var div = document.createElement('div');
+                    div.className = containerClass;
+                    div.style.position = 'absolute';
+                    div.style.display = 'none';
+                    return div;
+                }
+            };
+        }()),
+
+        keys = {
+            ESC: 27,
+            TAB: 9,
+            RETURN: 13,
+            LEFT: 37,
+            UP: 38,
+            RIGHT: 39,
+            DOWN: 40
+        },
+
+        noop = $.noop;
+
+    function Autocomplete(el, options) {
+        var that = this;
+
+        // Shared variables:
+        that.element = el;
+        that.el = $(el);
+        that.suggestions = [];
+        that.badQueries = [];
+        that.selectedIndex = -1;
+        that.currentValue = that.element.value;
+        that.timeoutId = null;
+        that.cachedResponse = {};
+        that.onChangeTimeout = null;
+        that.onChange = null;
+        that.isLocal = false;
+        that.suggestionsContainer = null;
+        that.noSuggestionsContainer = null;
+        that.options = $.extend(true, {}, Autocomplete.defaults, options);
+        that.classes = {
+            selected: 'autocomplete-selected',
+            suggestion: 'autocomplete-suggestion'
+        };
+        that.hint = null;
+        that.hintValue = '';
+        that.selection = null;
+
+        // Initialize and set options:
+        that.initialize();
+        that.setOptions(options);
+    }
+
+    Autocomplete.utils = utils;
+
+    $.Autocomplete = Autocomplete;
+
+    Autocomplete.defaults = {
+            ajaxSettings: {},
+            autoSelectFirst: false,
+            appendTo: 'body',
+            serviceUrl: null,
+            lookup: null,
+            onSelect: null,
+            width: 'auto',
+            minChars: 1,
+            maxHeight: 300,
+            deferRequestBy: 0,
+            params: {},
+            formatResult: _formatResult,
+            formatGroup: _formatGroup,
+            delimiter: null,
+            zIndex: 9999,
+            type: 'GET',
+            noCache: false,
+            onSearchStart: noop,
+            onSearchComplete: noop,
+            onSearchError: noop,
+            preserveInput: false,
+            containerClass: 'autocomplete-suggestions',
+            tabDisabled: false,
+            dataType: 'text',
+            currentRequest: null,
+            triggerSelectOnValidInput: true,
+            preventBadQueries: true,
+            lookupFilter: _lookupFilter,
+            paramName: 'query',
+            transformResult: _transformResult,
+            showNoSuggestionNotice: false,
+            noSuggestionNotice: 'No results',
+            orientation: 'bottom',
+            forceFixPosition: false
+    };
+
+    function _lookupFilter(suggestion, originalQuery, queryLowerCase) {
+        return suggestion.value.toLowerCase().indexOf(queryLowerCase) !== -1;
+    };
+
+    function _transformResult(response) {
+        return typeof response === 'string' ? $.parseJSON(response) : response;
+    };
+
+    function _formatResult(suggestion, currentValue) {
+        // Do not replace anything if the current value is empty
+        if (!currentValue) {
+            return suggestion.value;
+        }
+
+        var pattern = '(' + utils.escapeRegExChars(currentValue) + ')';
+
+        return suggestion.value
+            .replace(new RegExp(pattern, 'gi'), '<strong>$1<\/strong>')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/&lt;(\/?strong)&gt;/g, '<$1>');
+    };
+
+    function _formatGroup(suggestion, category) {
+        return '<div class="autocomplete-group">' + category + '</div>';
+    };
+
+    Autocomplete.prototype = {
+
+        initialize: function () {
+            var that = this,
+                suggestionSelector = '.' + that.classes.suggestion,
+                selected = that.classes.selected,
+                options = that.options,
+                container;
+
+            that.element.setAttribute('autocomplete', 'off');
+
+            // html() deals with many types: htmlString or Element or Array or jQuery
+            that.noSuggestionsContainer = $('<div class="autocomplete-no-suggestion"></div>')
+                                          .html(this.options.noSuggestionNotice).get(0);
+
+            that.suggestionsContainer = Autocomplete.utils.createNode(options.containerClass);
+
+            container = $(that.suggestionsContainer);
+
+            container.appendTo(options.appendTo || 'body');
+
+            // Only set width if it was provided:
+            if (options.width !== 'auto') {
+                container.css('width', options.width);
+            }
+
+            // Listen for mouse over event on suggestions list:
+            container.on('mouseover.autocomplete', suggestionSelector, function () {
+                that.activate($(this).data('index'));
+            });
+
+            // Deselect active element when mouse leaves suggestions container:
+            container.on('mouseout.autocomplete', function () {
+                that.selectedIndex = -1;
+                container.children('.' + selected).removeClass(selected);
+            });
+
+            // Listen for click event on suggestions list:
+            container.on('click.autocomplete', suggestionSelector, function () {
+                that.select($(this).data('index'));
+            });
+
+            container.on('click.autocomplete', function () {
+                clearTimeout(that.blurTimeoutId);
+            })
+
+            that.fixPositionCapture = function () {
+                if (that.visible) {
+                    that.fixPosition();
+                }
+            };
+
+            $(window).on('resize.autocomplete', that.fixPositionCapture);
+
+            that.el.on('keydown.autocomplete', function (e) { that.onKeyPress(e); });
+            that.el.on('keyup.autocomplete', function (e) { that.onKeyUp(e); });
+            that.el.on('blur.autocomplete', function () { that.onBlur(); });
+            that.el.on('focus.autocomplete', function () { that.onFocus(); });
+            that.el.on('change.autocomplete', function (e) { that.onKeyUp(e); });
+            that.el.on('input.autocomplete', function (e) { that.onKeyUp(e); });
+        },
+
+        onFocus: function () {
+            var that = this;
+
+            if (that.disabled) {
+                return;
+            }
+
+            that.fixPosition();
+
+            if (that.el.val().length >= that.options.minChars) {
+                that.onValueChange();
+            }
+        },
+
+        onBlur: function () {
+            var that = this,
+                options = that.options,
+                value = that.el.val(),
+                query = that.getQuery(value);
+
+            // If user clicked on a suggestion, hide() will
+            // be canceled, otherwise close suggestions
+            that.blurTimeoutId = setTimeout(function () {
+                that.hide();
+
+                if (that.selection && that.currentValue !== query) {
+                    (options.onInvalidateSelection || $.noop).call(that.element);
+                }
+            }, 200);
+        },
+
+        abortAjax: function () {
+            var that = this;
+            if (that.currentRequest) {
+                that.currentRequest.abort();
+                that.currentRequest = null;
+            }
+        },
+
+        setOptions: function (suppliedOptions) {
+            var that = this,
+                options = $.extend({}, that.options, suppliedOptions);
+
+            that.isLocal = Array.isArray(options.lookup);
+
+            if (that.isLocal) {
+                options.lookup = that.verifySuggestionsFormat(options.lookup);
+            }
+
+            options.orientation = that.validateOrientation(options.orientation, 'bottom');
+
+            // Adjust height, width and z-index:
+            $(that.suggestionsContainer).css({
+                'max-height': options.maxHeight + 'px',
+                'width': options.width + 'px',
+                'z-index': options.zIndex
+            });
+
+            this.options = options;
+        },
+
+
+        clearCache: function () {
+            this.cachedResponse = {};
+            this.badQueries = [];
+        },
+
+        clear: function () {
+            this.clearCache();
+            this.currentValue = '';
+            this.suggestions = [];
+        },
+
+        disable: function () {
+            var that = this;
+            that.disabled = true;
+            clearTimeout(that.onChangeTimeout);
+            that.abortAjax();
+        },
+
+        enable: function () {
+            this.disabled = false;
+        },
+
+        fixPosition: function () {
+            // Use only when container has already its content
+
+            var that = this,
+                $container = $(that.suggestionsContainer),
+                containerParent = $container.parent().get(0);
+            // Fix position automatically when appended to body.
+            // In other cases force parameter must be given.
+            if (containerParent !== document.body && !that.options.forceFixPosition) {
+                return;
+            }
+
+            // Choose orientation
+            var orientation = that.options.orientation,
+                containerHeight = $container.outerHeight(),
+                height = that.el.outerHeight(),
+                offset = that.el.offset(),
+                styles = { 'top': offset.top, 'left': offset.left };
+
+            if (orientation === 'auto') {
+                var viewPortHeight = $(window).height(),
+                    scrollTop = $(window).scrollTop(),
+                    topOverflow = -scrollTop + offset.top - containerHeight,
+                    bottomOverflow = scrollTop + viewPortHeight - (offset.top + height + containerHeight);
+
+                orientation = (Math.max(topOverflow, bottomOverflow) === topOverflow) ? 'top' : 'bottom';
+            }
+
+            if (orientation === 'top') {
+                styles.top += -containerHeight;
+            } else {
+                styles.top += height;
+            }
+
+            // If container is not positioned to body,
+            // correct its position using offset parent offset
+            if(containerParent !== document.body) {
+                var opacity = $container.css('opacity'),
+                    parentOffsetDiff;
+
+                    if (!that.visible){
+                        $container.css('opacity', 0).show();
+                    }
+
+                parentOffsetDiff = $container.offsetParent().offset();
+                styles.top -= parentOffsetDiff.top;
+                styles.top += containerParent.scrollTop;
+                styles.left -= parentOffsetDiff.left;
+
+                if (!that.visible){
+                    $container.css('opacity', opacity).hide();
+                }
+            }
+
+            if (that.options.width === 'auto') {
+                styles.width = that.el.outerWidth() + 'px';
+            }
+
+            $container.css(styles);
+        },
+
+        isCursorAtEnd: function () {
+            var that = this,
+                valLength = that.el.val().length,
+                selectionStart = that.element.selectionStart,
+                range;
+
+            if (typeof selectionStart === 'number') {
+                return selectionStart === valLength;
+            }
+            if (document.selection) {
+                range = document.selection.createRange();
+                range.moveStart('character', -valLength);
+                return valLength === range.text.length;
+            }
+            return true;
+        },
+
+        onKeyPress: function (e) {
+            var that = this;
+
+            // If suggestions are hidden and user presses arrow down, display suggestions:
+            if (!that.disabled && !that.visible && e.which === keys.DOWN && that.currentValue) {
+                that.suggest();
+                return;
+            }
+
+            if (that.disabled || !that.visible) {
+                return;
+            }
+
+            switch (e.which) {
+                case keys.ESC:
+                    that.el.val(that.currentValue);
+                    that.hide();
+                    break;
+                case keys.RIGHT:
+                    if (that.hint && that.options.onHint && that.isCursorAtEnd()) {
+                        that.selectHint();
+                        break;
+                    }
+                    return;
+                case keys.TAB:
+                    if (that.hint && that.options.onHint) {
+                        that.selectHint();
+                        return;
+                    }
+                    if (that.selectedIndex === -1) {
+                        that.hide();
+                        return;
+                    }
+                    that.select(that.selectedIndex);
+                    if (that.options.tabDisabled === false) {
+                        return;
+                    }
+                    break;
+                case keys.RETURN:
+                    if (that.selectedIndex === -1) {
+                        that.hide();
+                        return;
+                    }
+                    that.select(that.selectedIndex);
+                    break;
+                case keys.UP:
+                    that.moveUp();
+                    break;
+                case keys.DOWN:
+                    that.moveDown();
+                    break;
+                default:
+                    return;
+            }
+
+            // Cancel event if function did not return:
+            e.stopImmediatePropagation();
+            e.preventDefault();
+        },
+
+        onKeyUp: function (e) {
+            var that = this;
+
+            if (that.disabled) {
+                return;
+            }
+
+            switch (e.which) {
+                case keys.UP:
+                case keys.DOWN:
+                    return;
+            }
+
+            clearTimeout(that.onChangeTimeout);
+
+            if (that.currentValue !== that.el.val()) {
+                that.findBestHint();
+                if (that.options.deferRequestBy > 0) {
+                    // Defer lookup in case when value changes very quickly:
+                    that.onChangeTimeout = setTimeout(function () {
+                        that.onValueChange();
+                    }, that.options.deferRequestBy);
+                } else {
+                    that.onValueChange();
+                }
+            }
+        },
+
+        onValueChange: function () {
+            if (this.ignoreValueChange) {
+                this.ignoreValueChange = false;
+                return;
+            }
+
+            var that = this,
+                options = that.options,
+                value = that.el.val(),
+                query = that.getQuery(value);
+
+            if (that.selection && that.currentValue !== query) {
+                that.selection = null;
+                (options.onInvalidateSelection || $.noop).call(that.element);
+            }
+
+            clearTimeout(that.onChangeTimeout);
+            that.currentValue = value;
+            that.selectedIndex = -1;
+
+            // Check existing suggestion for the match before proceeding:
+            if (options.triggerSelectOnValidInput && that.isExactMatch(query)) {
+                that.select(0);
+                return;
+            }
+
+            if (query.length < options.minChars) {
+                that.hide();
+            } else {
+                that.getSuggestions(query);
+            }
+        },
+
+        isExactMatch: function (query) {
+            var suggestions = this.suggestions;
+
+            return (suggestions.length === 1 && suggestions[0].value.toLowerCase() === query.toLowerCase());
+        },
+
+        getQuery: function (value) {
+            var delimiter = this.options.delimiter,
+                parts;
+
+            if (!delimiter) {
+                return value;
+            }
+            parts = value.split(delimiter);
+            return $.trim(parts[parts.length - 1]);
+        },
+
+        getSuggestionsLocal: function (query) {
+            var that = this,
+                options = that.options,
+                queryLowerCase = query.toLowerCase(),
+                filter = options.lookupFilter,
+                limit = parseInt(options.lookupLimit, 10),
+                data;
+
+            data = {
+                suggestions: $.grep(options.lookup, function (suggestion) {
+                    return filter(suggestion, query, queryLowerCase);
+                })
+            };
+
+            if (limit && data.suggestions.length > limit) {
+                data.suggestions = data.suggestions.slice(0, limit);
+            }
+
+            return data;
+        },
+
+        getSuggestions: function (q) {
+            var response,
+                that = this,
+                options = that.options,
+                serviceUrl = options.serviceUrl,
+                params,
+                cacheKey,
+                ajaxSettings;
+
+            options.params[options.paramName] = q;
+
+            if (options.onSearchStart.call(that.element, options.params) === false) {
+                return;
+            }
+
+            params = options.ignoreParams ? null : options.params;
+
+            if ($.isFunction(options.lookup)){
+                options.lookup(q, function (data) {
+                    that.suggestions = data.suggestions;
+                    that.suggest();
+                    options.onSearchComplete.call(that.element, q, data.suggestions);
+                });
+                return;
+            }
+
+            if (that.isLocal) {
+                response = that.getSuggestionsLocal(q);
+            } else {
+                if ($.isFunction(serviceUrl)) {
+                    serviceUrl = serviceUrl.call(that.element, q);
+                }
+                cacheKey = serviceUrl + '?' + $.param(params || {});
+                response = that.cachedResponse[cacheKey];
+            }
+
+            if (response && Array.isArray(response.suggestions)) {
+                that.suggestions = response.suggestions;
+                that.suggest();
+                options.onSearchComplete.call(that.element, q, response.suggestions);
+            } else if (!that.isBadQuery(q)) {
+                that.abortAjax();
+
+                ajaxSettings = {
+                    url: serviceUrl,
+                    data: params,
+                    type: options.type,
+                    dataType: options.dataType
+                };
+
+                $.extend(ajaxSettings, options.ajaxSettings);
+
+                that.currentRequest = $.ajax(ajaxSettings).done(function (data) {
+                    var result;
+                    that.currentRequest = null;
+                    result = options.transformResult(data, q);
+                    that.processResponse(result, q, cacheKey);
+                    options.onSearchComplete.call(that.element, q, result.suggestions);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    options.onSearchError.call(that.element, q, jqXHR, textStatus, errorThrown);
+                });
+            } else {
+                options.onSearchComplete.call(that.element, q, []);
+            }
+        },
+
+        isBadQuery: function (q) {
+            if (!this.options.preventBadQueries){
+                return false;
+            }
+
+            var badQueries = this.badQueries,
+                i = badQueries.length;
+
+            while (i--) {
+                if (q.indexOf(badQueries[i]) === 0) {
+                    return true;
+                }
+            }
+
+            return false;
+        },
+
+        hide: function () {
+            var that = this,
+                container = $(that.suggestionsContainer);
+
+            if ($.isFunction(that.options.onHide) && that.visible) {
+                that.options.onHide.call(that.element, container);
+            }
+
+            that.visible = false;
+            that.selectedIndex = -1;
+            clearTimeout(that.onChangeTimeout);
+            $(that.suggestionsContainer).hide();
+            that.signalHint(null);
+        },
+
+        suggest: function () {
+            if (!this.suggestions.length) {
+                if (this.options.showNoSuggestionNotice) {
+                    this.noSuggestions();
+                } else {
+                    this.hide();
+                }
+                return;
+            }
+
+            var that = this,
+                options = that.options,
+                groupBy = options.groupBy,
+                formatResult = options.formatResult,
+                value = that.getQuery(that.currentValue),
+                className = that.classes.suggestion,
+                classSelected = that.classes.selected,
+                container = $(that.suggestionsContainer),
+                noSuggestionsContainer = $(that.noSuggestionsContainer),
+                beforeRender = options.beforeRender,
+                html = '',
+                category,
+                formatGroup = function (suggestion, index) {
+                        var currentCategory = suggestion.data[groupBy];
+
+                        if (category === currentCategory){
+                            return '';
+                        }
+
+                        category = currentCategory;
+
+                        return options.formatGroup(suggestion, category);
+                    };
+
+            if (options.triggerSelectOnValidInput && that.isExactMatch(value)) {
+                that.select(0);
+                return;
+            }
+
+            // Build suggestions inner HTML:
+            $.each(that.suggestions, function (i, suggestion) {
+                if (groupBy){
+                    html += formatGroup(suggestion, value, i);
+                }
+
+                html += '<div class="' + className + '" data-index="' + i + '">' + formatResult(suggestion, value, i) + '</div>';
+            });
+
+            this.adjustContainerWidth();
+
+            noSuggestionsContainer.detach();
+            container.html(html);
+
+            if ($.isFunction(beforeRender)) {
+                beforeRender.call(that.element, container, that.suggestions);
+            }
+
+            that.fixPosition();
+            container.show();
+
+            // Select first value by default:
+            if (options.autoSelectFirst) {
+                that.selectedIndex = 0;
+                container.scrollTop(0);
+                container.children('.' + className).first().addClass(classSelected);
+            }
+
+            that.visible = true;
+            that.findBestHint();
+        },
+
+        noSuggestions: function() {
+             var that = this,
+                 beforeRender = that.options.beforeRender,
+                 container = $(that.suggestionsContainer),
+                 noSuggestionsContainer = $(that.noSuggestionsContainer);
+
+            this.adjustContainerWidth();
+
+            // Some explicit steps. Be careful here as it easy to get
+            // noSuggestionsContainer removed from DOM if not detached properly.
+            noSuggestionsContainer.detach();
+
+            // clean suggestions if any
+            container.empty();
+            container.append(noSuggestionsContainer);
+
+            if ($.isFunction(beforeRender)) {
+                beforeRender.call(that.element, container, that.suggestions);
+            }
+
+            that.fixPosition();
+
+            container.show();
+            that.visible = true;
+        },
+
+        adjustContainerWidth: function() {
+            var that = this,
+                options = that.options,
+                width,
+                container = $(that.suggestionsContainer);
+
+            // If width is auto, adjust width before displaying suggestions,
+            // because if instance was created before input had width, it will be zero.
+            // Also it adjusts if input width has changed.
+            if (options.width === 'auto') {
+                width = that.el.outerWidth();
+                container.css('width', width > 0 ? width : 300);
+            } else if(options.width === 'flex') {
+                // Trust the source! Unset the width property so it will be the max length
+                // the containing elements.
+                container.css('width', '');
+            }
+        },
+
+        findBestHint: function () {
+            var that = this,
+                value = that.el.val().toLowerCase(),
+                bestMatch = null;
+
+            if (!value) {
+                return;
+            }
+
+            $.each(that.suggestions, function (i, suggestion) {
+                var foundMatch = suggestion.value.toLowerCase().indexOf(value) === 0;
+                if (foundMatch) {
+                    bestMatch = suggestion;
+                }
+                return !foundMatch;
+            });
+
+            that.signalHint(bestMatch);
+        },
+
+        signalHint: function (suggestion) {
+            var hintValue = '',
+                that = this;
+            if (suggestion) {
+                hintValue = that.currentValue + suggestion.value.substr(that.currentValue.length);
+            }
+            if (that.hintValue !== hintValue) {
+                that.hintValue = hintValue;
+                that.hint = suggestion;
+                (this.options.onHint || $.noop)(hintValue);
+            }
+        },
+
+        verifySuggestionsFormat: function (suggestions) {
+            // If suggestions is string array, convert them to supported format:
+            if (suggestions.length && typeof suggestions[0] === 'string') {
+                return $.map(suggestions, function (value) {
+                    return { value: value, data: null };
+                });
+            }
+
+            return suggestions;
+        },
+
+        validateOrientation: function(orientation, fallback) {
+            orientation = $.trim(orientation || '').toLowerCase();
+
+            if($.inArray(orientation, ['auto', 'bottom', 'top']) === -1){
+                orientation = fallback;
+            }
+
+            return orientation;
+        },
+
+        processResponse: function (result, originalQuery, cacheKey) {
+            var that = this,
+                options = that.options;
+
+            result.suggestions = that.verifySuggestionsFormat(result.suggestions);
+
+            // Cache results if cache is not disabled:
+            if (!options.noCache) {
+                that.cachedResponse[cacheKey] = result;
+                if (options.preventBadQueries && !result.suggestions.length) {
+                    that.badQueries.push(originalQuery);
+                }
+            }
+
+            // Return if originalQuery is not matching current query:
+            if (originalQuery !== that.getQuery(that.currentValue)) {
+                return;
+            }
+
+            that.suggestions = result.suggestions;
+            that.suggest();
+        },
+
+        activate: function (index) {
+            var that = this,
+                activeItem,
+                selected = that.classes.selected,
+                container = $(that.suggestionsContainer),
+                children = container.find('.' + that.classes.suggestion);
+
+            container.find('.' + selected).removeClass(selected);
+
+            that.selectedIndex = index;
+
+            if (that.selectedIndex !== -1 && children.length > that.selectedIndex) {
+                activeItem = children.get(that.selectedIndex);
+                $(activeItem).addClass(selected);
+                return activeItem;
+            }
+
+            return null;
+        },
+
+        selectHint: function () {
+            var that = this,
+                i = $.inArray(that.hint, that.suggestions);
+
+            that.select(i);
+        },
+
+        select: function (i) {
+            var that = this;
+            that.hide();
+            that.onSelect(i);
+        },
+
+        moveUp: function () {
+            var that = this;
+
+            if (that.selectedIndex === -1) {
+                return;
+            }
+
+            if (that.selectedIndex === 0) {
+                $(that.suggestionsContainer).children('.' + that.classes.suggestion).first().removeClass(that.classes.selected);
+                that.selectedIndex = -1;
+                that.ignoreValueChange = false;
+                that.el.val(that.currentValue);
+                that.findBestHint();
+                return;
+            }
+
+            that.adjustScroll(that.selectedIndex - 1);
+        },
+
+        moveDown: function () {
+            var that = this;
+
+            if (that.selectedIndex === (that.suggestions.length - 1)) {
+                return;
+            }
+
+            that.adjustScroll(that.selectedIndex + 1);
+        },
+
+        adjustScroll: function (index) {
+            var that = this,
+                activeItem = that.activate(index);
+
+            if (!activeItem) {
+                return;
+            }
+
+            var offsetTop,
+                upperBound,
+                lowerBound,
+                heightDelta = $(activeItem).outerHeight();
+
+            offsetTop = activeItem.offsetTop;
+            upperBound = $(that.suggestionsContainer).scrollTop();
+            lowerBound = upperBound + that.options.maxHeight - heightDelta;
+
+            if (offsetTop < upperBound) {
+                $(that.suggestionsContainer).scrollTop(offsetTop);
+            } else if (offsetTop > lowerBound) {
+                $(that.suggestionsContainer).scrollTop(offsetTop - that.options.maxHeight + heightDelta);
+            }
+
+            if (!that.options.preserveInput) {
+                // During onBlur event, browser will trigger "change" event,
+                // because value has changed, to avoid side effect ignore,
+                // that event, so that correct suggestion can be selected
+                // when clicking on suggestion with a mouse
+                that.ignoreValueChange = true;
+                that.el.val(that.getValue(that.suggestions[index].value));
+            }
+
+            that.signalHint(null);
+        },
+
+        onSelect: function (index) {
+            var that = this,
+                onSelectCallback = that.options.onSelect,
+                suggestion = that.suggestions[index];
+
+            that.currentValue = that.getValue(suggestion.value);
+
+            if (that.currentValue !== that.el.val() && !that.options.preserveInput) {
+                that.el.val(that.currentValue);
+            }
+
+            that.signalHint(null);
+            that.suggestions = [];
+            that.selection = suggestion;
+
+            if ($.isFunction(onSelectCallback)) {
+                onSelectCallback.call(that.element, suggestion);
+            }
+        },
+
+        getValue: function (value) {
+            var that = this,
+                delimiter = that.options.delimiter,
+                currentValue,
+                parts;
+
+            if (!delimiter) {
+                return value;
+            }
+
+            currentValue = that.currentValue;
+            parts = currentValue.split(delimiter);
+
+            if (parts.length === 1) {
+                return value;
+            }
+
+            return currentValue.substr(0, currentValue.length - parts[parts.length - 1].length) + value;
+        },
+
+        dispose: function () {
+            var that = this;
+            that.el.off('.autocomplete').removeData('autocomplete');
+            $(window).off('resize.autocomplete', that.fixPositionCapture);
+            $(that.suggestionsContainer).remove();
+        }
+    };
+
+    // Create chainable jQuery plugin:
+    $.fn.devbridgeAutocomplete = function (options, args) {
+        var dataKey = 'autocomplete';
+        // If function invoked without argument return
+        // instance of the first matched element:
+        if (!arguments.length) {
+            return this.first().data(dataKey);
+        }
+
+        return this.each(function () {
+            var inputElement = $(this),
+                instance = inputElement.data(dataKey);
+
+            if (typeof options === 'string') {
+                if (instance && typeof instance[options] === 'function') {
+                    instance[options](args);
+                }
+            } else {
+                // If instance already exists, destroy it:
+                if (instance && instance.dispose) {
+                    instance.dispose();
+                }
+                instance = new Autocomplete(this, options);
+                inputElement.data(dataKey, instance);
+            }
+        });
+    };
+
+    // Don't overwrite if it already exists
+    if (!$.fn.autocomplete) {
+        $.fn.autocomplete = $.fn.devbridgeAutocomplete;
+    }
+}));
+
+
+/***/ }),
+
 /***/ "./node_modules/izitoast/dist/js/iziToast.js":
 /*!***************************************************!*\
   !*** ./node_modules/izitoast/dist/js/iziToast.js ***!
@@ -31223,6 +32239,541 @@ return jQuery;
 
 /***/ }),
 
+/***/ "./node_modules/onscan.js/onscan.js":
+/*!******************************************!*\
+  !*** ./node_modules/onscan.js/onscan.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+ * onScan.js - scan-events for hardware barcodes scanners in javascript
+ */
+;(function (global, factory) {
+     true ? module.exports = factory() :
+    undefined
+}(this, (function () {
+	var onScan = {	
+		
+		/**
+		 * 
+		 * @param DomElement oDomElement
+		 * @param Object oOptions
+		 * @return self
+		 */
+		attachTo: function(oDomElement, oOptions) {
+	
+			if(oDomElement.scannerDetectionData !== undefined){
+				throw new Error("onScan.js is already initialized for DOM element " + oDomElement);
+			}
+	
+			var oDefaults = {
+				onScan: function(sScanned, iQty){}, // Callback after detection of a successfull scanning:  function(){sScancode, iCount)}()
+				onScanError: function(oDebug){}, // Callback after detection of a unsuccessfull scanning (scanned string in parameter)
+				onKeyProcess: function(sChar, oEvent){}, // Callback after receiving and processing a char (scanned char in parameter)
+				onKeyDetect: function(iKeyCode, oEvent){}, // Callback after detecting a keyDown (key char in parameter) - in contrast to onKeyProcess, this fires for non-character keys like tab, arrows, etc. too!
+				onPaste: function(sPasted, oEvent){}, // Callback after receiving a value on paste, no matter if it is a valid code or not
+				keyCodeMapper: function(oEvent) {return onScan.decodeKeyEvent(oEvent)}, // Custom function to decode a keydown event into a character. Must return decoded character or NULL if the given event should not be processed.
+				onScanButtonLongPress: function(){}, // Callback after detection of a successfull scan while the scan button was pressed and held down
+				scanButtonKeyCode:false, // Key code of the scanner hardware button (if the scanner button a acts as a key itself) 
+				scanButtonLongPressTime:500, // How long (ms) the hardware button should be pressed, until a callback gets executed
+				timeBeforeScanTest:100, // Wait duration (ms) after keypress event to check if scanning is finished
+				avgTimeByChar:30, // Average time (ms) between 2 chars. Used to do difference between keyboard typing and scanning
+				minLength:6, // Minimum length for a scanning
+				suffixKeyCodes:[9,13], // Chars to remove and means end of scanning
+				prefixKeyCodes:[], // Chars to remove and means start of scanning
+				ignoreIfFocusOn:false, // do not handle scans if the currently focused element matches this selector or object
+				stopPropagation:false, // Stop immediate propagation on keypress event
+				preventDefault:false, // Prevent default action on keypress event
+				captureEvents:false, // Get the events before any listeners deeper in the DOM
+				reactToKeydown:true, // look for scan input in keyboard events
+				reactToPaste:false, // look for scan input in paste events
+				singleScanQty: 1, // Quantity of Items put out to onScan in a single scan
+			}
+									
+			oOptions = this._mergeOptions(oDefaults, oOptions);
+	
+			// initializing options and variables on DomElement
+			oDomElement.scannerDetectionData = {
+					options: oOptions,
+					vars:{
+						firstCharTime: 0,
+						lastCharTime: 0,
+						accumulatedString: '',
+						testTimer: false,
+						longPressTimeStart: 0,
+						longPressed: false
+					}
+				
+			};
+			
+			// initializing handlers (based on settings)
+			if (oOptions.reactToPaste === true){
+				oDomElement.addEventListener("paste", this._handlePaste, oOptions.captureEvents);
+			}
+			if (oOptions.scanButtonKeyCode !== false){
+				oDomElement.addEventListener("keyup", this._handleKeyUp, oOptions.captureEvents);
+			}
+			if (oOptions.reactToKeydown === true || oOptions.scanButtonKeyCode !== false){	
+				oDomElement.addEventListener("keydown", this._handleKeyDown, oOptions.captureEvents);
+			}
+			return this;
+		},
+		
+		/**
+		 * 
+		 * @param DomElement oDomElement
+		 * @return void
+		 */
+		detachFrom: function(oDomElement) {
+			// detaching all used events
+			if (oDomElement.scannerDetectionData.options.reactToPaste){
+				oDomElement.removeEventListener("paste", this._handlePaste);
+			}
+			if (oDomElement.scannerDetectionData.options.scanButtonKeyCode !== false){
+				oDomElement.removeEventListener("keyup", this._handleKeyUp);
+			}
+			oDomElement.removeEventListener("keydown", this._handleKeyDown);
+			
+			// clearing data off DomElement
+			oDomElement.scannerDetectionData = undefined; 
+			return;
+		},
+		
+		/**
+		 * 
+		 * @param DomElement oDomElement
+		 * @return Object
+		 */
+		getOptions: function(oDomElement){
+			return oDomElement.scannerDetectionData.options;			
+		},
+	
+		/**
+		 * 
+		 * @param DomElement oDomElement
+		 * @param Object oOptions
+		 * @return self
+		 */
+		setOptions: function(oDomElement, oOptions){
+			// check if some handlers need to be changed based on possible option changes
+			switch (oDomElement.scannerDetectionData.options.reactToPaste){
+				case true: 
+					if (oOptions.reactToPaste === false){
+						oDomElement.removeEventListener("paste", this._handlePaste);
+					}
+					break;
+				case false:
+					if (oOptions.reactToPaste === true){
+						oDomElement.addEventListener("paste", this._handlePaste);
+					}
+					break;
+			}
+			
+			switch (oDomElement.scannerDetectionData.options.scanButtonKeyCode){
+				case false:
+					if (oOptions.scanButtonKeyCode !== false){
+						oDomElement.addEventListener("keyup", this._handleKeyUp);
+					}
+					break;
+				default: 
+					if (oOptions.scanButtonKeyCode === false){
+						oDomElement.removeEventListener("keyup", this._handleKeyUp);
+					}
+					break;
+			}
+			
+			// merge old and new options
+			oDomElement.scannerDetectionData.options = this._mergeOptions(oDomElement.scannerDetectionData.options, oOptions);
+		
+			// reinitiallize
+			this._reinitialize(oDomElement);
+			return this;
+		},
+		
+		/**
+		 * Transforms key codes into characters.
+		 * 
+		 * By default, only the follwing key codes are taken into account
+		 * - 48-90 (letters and regular numbers)
+		 * - 96-105 (numeric keypad numbers)
+		 * - 106-111 (numeric keypad operations)
+		 * 
+		 * All other keys will yield empty strings!
+		 * 
+		 * The above keycodes will be decoded using the KeyboardEvent.key property on modern
+		 * browsers. On older browsers the method will fall back to String.fromCharCode()
+		 * putting the result to upper/lower case depending on KeyboardEvent.shiftKey if
+		 * it is set.
+		 * 
+		 * @param KeyboardEvent oEvent
+		 * @return string
+		 */
+		decodeKeyEvent : function (oEvent) {
+			var iCode = this._getNormalizedKeyNum(oEvent);
+			switch (true) {
+				case iCode >= 48 && iCode <= 90: // numbers and letters
+				case iCode >= 106 && iCode <= 111: // operations on numeric keypad (+, -, etc.)
+					if (oEvent.key !== undefined && oEvent.key !== '') {
+						return oEvent.key;
+					}
+				
+					var sDecoded = String.fromCharCode(iCode);
+					switch (oEvent.shiftKey) {
+						case false: sDecoded = sDecoded.toLowerCase(); break;
+						case true: sDecoded = sDecoded.toUpperCase(); break;
+					}
+					return sDecoded;
+				case iCode >= 96 && iCode <= 105: // numbers on numeric keypad
+					return 0+(iCode-96);
+			}
+			return '';
+		},
+		
+		/**
+		 * Simulates a scan of the provided code.
+	     *
+		 * The scan code can be defined as
+		 * - a string - in this case no keyCode decoding is done and the code is merely validated
+		 * against constraints like minLenght, etc.
+		 * - an array of keyCodes (e.g. `[70,71,80]`) - will produce `keydown` events with corresponding
+		 * `keyCode` properties. NOTE: these events will have empty `key` properties, so decoding may
+		 * yield different results than with native events.
+		 * - an array of objects (e.g. `[{keyCode: 70, key: "F", shiftKey: true}, {keyCode: 71, key: "g"}]`) -
+		 * this way almost any event can be simulated, but it's a lot of work to do.
+		 *
+		 * @param DomElement oDomElement
+		 * @param string|array mStringOrArray
+		 * @return self
+		 */
+		simulate: function(oDomElement, mStringOrArray){
+			this._reinitialize(oDomElement);
+			if (Array.isArray(mStringOrArray)){
+				mStringOrArray.forEach(function(mKey){
+					var oEventProps = {};
+					if( (typeof mKey === "object" || typeof mKey === 'function') && (mKey !== null) ) {
+						oEventProps = mKey;
+					} else {
+						oEventProps.keyCode = parseInt(mKey);
+					}
+					var oEvent = new KeyboardEvent('keydown', oEventProps);
+					document.dispatchEvent(oEvent);
+				})
+			} else {
+				this._validateScanCode(oDomElement, mStringOrArray);
+			}
+			return this;
+		},
+		
+		/**
+		 * @private
+		 * @param DomElement oDomElement
+		 * @return void
+		 */
+		_reinitialize: function(oDomElement){
+			var oVars = oDomElement.scannerDetectionData.vars;
+			oVars.firstCharTime = 0;
+			oVars.lastCharTime = 0;
+			oVars.accumulatedString = '';
+			return;
+		},
+		
+		/**
+		 * @private
+		 * @param DomElement oDomElement
+	     * @return boolean
+		 */
+		_isFocusOnIgnoredElement: function(oDomElement){
+			
+			var ignoreSelectors = oDomElement.scannerDetectionData.options.ignoreIfFocusOn;
+	
+	        if(!ignoreSelectors){
+				return false;
+			}
+		
+			var oFocused = document.activeElement;
+			
+			// checks if ignored element is an array, and if so it checks if one of the elements of it is an active one
+			if (Array.isArray(ignoreSelectors)){
+				for(var i=0; i<ignoreSelectors.length; i++){
+					if(oFocused.matches(ignoreSelectors[i]) === true){
+						return true;
+					}
+				}
+			// if the option consists of an single element, it only checks this one
+			} else if (oFocused.matches(ignoreSelectors)){
+				return true;					
+			}
+			
+			// if the active element is not listed in the ignoreIfFocusOn option, return false
+		    return false;
+	    },
+		
+	    /**
+	     * Validates the scan code accumulated by the given DOM element and fires the respective events.
+	     * 
+	     * @private
+	     * @param DomElement oDomElement
+	     * @return boolean
+	     */
+		_validateScanCode: function(oDomElement, sScanCode){
+			var oScannerData = oDomElement.scannerDetectionData;			
+			var oOptions = oScannerData.options;
+			var iSingleScanQty = oScannerData.options.singleScanQty;
+			var iFirstCharTime = oScannerData.vars.firstCharTime;
+			var iLastCharTime = oScannerData.vars.lastCharTime;
+			var oScanError = {};
+	        var oEvent;
+	        
+			switch(true){
+				
+				// detect codes that are too short
+				case (sScanCode.length < oOptions.minLength):
+					oScanError = {
+						message: "Receieved code is shorter then minimal length"
+					};
+					break;
+					
+				// detect codes that were entered too slow	
+				case ((iLastCharTime - iFirstCharTime) > (sScanCode.length * oOptions.avgTimeByChar)):
+					oScanError = {
+						message: "Receieved code was not entered in time"
+					};				
+					break;
+					
+				// if a code was not filtered out earlier it is valid	
+				default:
+					oOptions.onScan.call(oDomElement, sScanCode, iSingleScanQty);
+					oEvent = new CustomEvent(
+						'scan',
+						{	
+							detail: { 
+								scanCode: sScanCode,
+								qty: iSingleScanQty
+							}
+						}
+					);
+					oDomElement.dispatchEvent(oEvent);
+					onScan._reinitialize(oDomElement);
+					return true;
+			}
+			
+			// If an error occurred (otherwise the method would return earlier) create an object for errordetection
+			oScanError.scanCode = sScanCode;
+			oScanError.scanDuration = iLastCharTime - iFirstCharTime;
+			oScanError.avgTimeByChar = oOptions.avgTimeByChar;
+			oScanError.minLength = oOptions.minLength;
+			
+			oOptions.onScanError.call(oDomElement, oScanError);
+			
+			oEvent = new CustomEvent(
+				'scanError', 
+				{detail: oScanError}
+			);
+			oDomElement.dispatchEvent(oEvent);
+			
+			onScan._reinitialize(oDomElement);
+			return false;
+	    },
+	
+	    /**
+	     * @private
+	     * @param Object oDefaults
+	     * @param Object oOptions
+	     * @return Object
+	     */
+		_mergeOptions: function(oDefaults, oOptions){
+			var oExtended = {};
+			var prop;
+			for (prop in oDefaults){
+				if (Object.prototype.hasOwnProperty.call(oDefaults, prop)){
+					oExtended[prop] = oDefaults[prop];
+				}
+			}			
+			for (prop in oOptions){
+				if (Object.prototype.hasOwnProperty.call(oOptions, prop)){
+					oExtended[prop] = oOptions[prop];
+				}
+			}			
+			return oExtended;
+		},
+	
+		/**
+		 * @private
+		 * @param KeyboardEvent e
+		 * @return int
+		 * @see https://www.w3schools.com/jsref/event_key_keycode.asp
+		 */
+		_getNormalizedKeyNum: function(e){
+			return e.which || e.keyCode;
+		},
+	
+	
+		/**
+		 * @private
+		 * @param KeyboardEvent e
+		 * @return void
+		 */
+		_handleKeyDown: function(e){
+			var iKeyCode = onScan._getNormalizedKeyNum(e);
+			var oOptions = this.scannerDetectionData.options;
+			var oVars = this.scannerDetectionData.vars;
+			var bScanFinished = false;
+			
+			if (oOptions.onKeyDetect.call(this, iKeyCode, e) === false) {
+				return;
+			}		
+			
+			if (onScan._isFocusOnIgnoredElement(this)){
+				return;
+			}
+						
+	        // If it's just the button of the scanner, ignore it and wait for the real input
+		    if(oOptions.scanButtonKeyCode !== false && iKeyCode==oOptions.scanButtonKeyCode) {
+				
+				// if the button was first pressed, start a timeout for the callback, which gets interrupted if the scanbutton gets released
+				if (!oVars.longPressed){
+					oVars.longPressTimer = setTimeout( oOptions.onScanButtonLongPress, oOptions.scanButtonLongPressTime, this);
+					oVars.longPressed = true;
+				}
+	
+				return;
+	        }
+			
+			switch(true){
+				// If it's not the first character and we encounter a terminating character, trigger scan process
+				case (oVars.firstCharTime && oOptions.suffixKeyCodes.indexOf(iKeyCode)!==-1):
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					bScanFinished=true;
+					break;
+					
+				// If it's the first character and we encountered one of the starting characters, don't process the scan	
+				case (!oVars.firstCharTime && oOptions.prefixKeyCodes.indexOf(iKeyCode)!==-1):
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					bScanFinished=false;
+					break;
+					
+				// Otherwise, just add the character to the scan string we're building	
+				default:
+					var character = oOptions.keyCodeMapper.call(this, e);
+					if (character === null){
+						return;
+					}
+					oVars.accumulatedString += character;
+					
+					if (oOptions.preventDefault) {
+						e.preventDefault();
+					}
+					if (oOptions.stopPropagation) {
+						e.stopImmediatePropagation();
+					}
+					
+					bScanFinished=false;
+					break;
+			}
+	        
+			if(!oVars.firstCharTime){
+				oVars.firstCharTime=Date.now();
+			}
+			
+			oVars.lastCharTime=Date.now();
+	
+			if(oVars.testTimer){ 
+				clearTimeout(oVars.testTimer);
+			}
+			
+			if(bScanFinished){
+				onScan._validateScanCode(this, oVars.accumulatedString);
+				oVars.testTimer=false;
+			} else {
+				oVars.testTimer=setTimeout(onScan._validateScanCode, oOptions.timeBeforeScanTest, this, oVars.accumulatedString);
+			}
+	
+			oOptions.onKeyProcess.call(this, character, e);
+			return;
+		},
+		
+		/**
+		 * @private
+		 * @param Event e
+		 * @return void
+		 */
+		_handlePaste: function(e){
+	
+			var oOptions = this.scannerDetectionData.options;
+			var oVars = this.scannerDetectionData.vars;
+			var sPasteString = (event.clipboardData || window.clipboardData).getData('text');
+			
+			// if the focus is on an ignored element, abort
+			if (onScan._isFocusOnIgnoredElement(this)){
+				return;
+			}
+			
+			e.preventDefault();
+
+			if (oOptions.stopPropagation) {
+				e.stopImmediatePropagation();
+			}
+						
+			oOptions.onPaste.call(this, sPasteString, event);
+			
+			oVars.firstCharTime = 0;
+			oVars.lastCharTime = 0;
+			
+			// validate the string
+			onScan._validateScanCode(this, sPasteString);
+			return;
+		},
+		
+		/**
+		 * @private
+		 * @param KeyboardEvent e
+		 * @return void
+		 */
+		_handleKeyUp: function(e){
+			// if the focus is on an ignored element, abort
+			if (onScan._isFocusOnIgnoredElement(this)){
+				return;
+			}
+			
+			var iKeyCode = onScan._getNormalizedKeyNum(e);
+			
+			// if hardware key is not being pressed anymore stop the timeout and reset
+			if (iKeyCode == this.scannerDetectionData.options.scanButtonKeyCode){
+				clearTimeout(this.scannerDetectionData.vars.longPressTimer);
+				this.scannerDetectionData.vars.longPressed = false;
+			}
+			return;
+		},
+		
+		/**
+		 * Returns TRUE the scanner is currently in the middle of a scan sequence.
+		 * 
+		 * @param DomElement
+		 * @return boolean
+		 */
+		isScanInProgressFor: function(oDomElement) {
+			return oDomElement.scannerDetectionData.vars.firstCharTime > 0;
+		},
+		
+		/**
+		 * Returns TRUE if onScan is attached to the given DOM element and FALSE otherwise.
+		 * 
+		 * @param DomElement
+		 * @return boolean
+		 */
+		isAttachedTo: function(oDomElement) {
+			return (oDomElement.scannerDetectionData !== undefined);
+		}
+	};
+	
+	return onScan;
+})));
+
+/***/ }),
+
 /***/ "./node_modules/overlayscrollbars/js/OverlayScrollbars.js":
 /*!****************************************************************!*\
   !*** ./node_modules/overlayscrollbars/js/OverlayScrollbars.js ***!
@@ -47945,6 +49496,7 @@ window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js")
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 window.Swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
+window.onScan = __webpack_require__(/*! onscan.js */ "./node_modules/onscan.js/onscan.js");
 
 __webpack_require__(/*! select2 */ "./node_modules/select2/dist/js/select2.js");
 
@@ -47953,6 +49505,8 @@ __webpack_require__(/*! overlayscrollbars */ "./node_modules/overlayscrollbars/j
 __webpack_require__(/*! ../../vendor/almasaeed2010/adminlte/dist/js/adminlte */ "./vendor/almasaeed2010/adminlte/dist/js/adminlte.js");
 
 __webpack_require__(/*! bootstrap4-toggle */ "./node_modules/bootstrap4-toggle/js/bootstrap4-toggle.min.js");
+
+__webpack_require__(/*! devbridge-autocomplete */ "./node_modules/devbridge-autocomplete/dist/jquery.autocomplete.js");
 
 window.iziToast = iziToast = __webpack_require__(/*! izitoast */ "./node_modules/izitoast/dist/js/iziToast.js");
 window.printThis = __webpack_require__(/*! print-this */ "./node_modules/print-this/printThis.js");

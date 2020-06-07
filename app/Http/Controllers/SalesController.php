@@ -32,25 +32,40 @@ class SalesController extends Controller
     public function search(Request $request)
     {
         $data = [];
-        if (empty($request->q)) {
-            $products = $this->productHelper->getAllProducts();
-        } else {
+        if (!empty($request->q)) {
             $products = $this->productHelper->search($request->q);
+            $products->each(function ($item, $key) use (&$data) {
+                $data[] = array('data' => $item->id, 'value' => $item->name);
+            });
         }
 
-        $products->each(function ($item, $key) use (&$data) {
-            $data[] = array('id' => $item->id, 'text' => $item->name);
-        });
-        // $response = [
-        //     "resullts" => $data,
-        // ];
-        return json_encode($data);
+        $response = [
+            "suggestions" => $data,
+        ];
+        return json_encode($response);
     }
 
 
     public function addProduct(Request $request)
     {
         $sale_items = $this->salesHelper->addToSale($request->id, 1);
+        if ($sale_items == 'exists') {
+            return response()->json([
+                'message' => "Product already added to sale",
+                'type' => 'warning'
+            ], 400);
+        } elseif ($sale_items == 'out_of_stock') {
+            return response()->json([
+                'message' => "Product out of stock",
+                'type' => 'warning'
+            ], 400);
+        }
+        return $this->returnRes();
+    }
+
+    public function addProductSku(Request $request)
+    {
+        $sale_items = $this->salesHelper->addProductSku($request->sku);
         if ($sale_items == 'exists') {
             return response()->json([
                 'message' => "Product already added to sale",

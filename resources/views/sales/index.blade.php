@@ -41,10 +41,12 @@
                     <div class="row">
 
                         <div class="col-md-8 offset-md-2 mb-5" style="">
-                            <form action="" id="product_search_form">
+                            {{-- <form action="" id="product_search_form">
                                 <select name="product_search" id="product_search" class="w-100"
                                     style="height:100px;"></select>
-                            </form>
+                            </form> --}}
+                            <input type="text" id="search" class="form-control"
+                                placeholder="Search products by Sku, Name or Scan Barcode">
                         </div>
 
                         <div class="col-md-9">
@@ -132,7 +134,49 @@
 @section('load_js')
 <script>
     $(function () {
+
+
+        onScan.attachTo(document, {
+            suffixKeyCodes: [13], // enter-key expected at the end of a scan
+            reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
+            minLength:4,
+            onScan: function (sCode, iQty) { // Alternative to document.addEventListener('scan')
+                getProductWithSku(sCode);
+            },
+            onKeyDetect: function (iKeyCode) { // output all potentially relevant key events - great for debugging!
+                // console.log('Pressed: ' + iKeyCode);
+            }
+        });
+
+
+        // Simulate a scan programmatically - e.g. to test event handlers
+            // onScan.simulate(document, '5565670');
+
+
+
         boot();
+
+        $('#search').autocomplete({
+            serviceUrl: '{{route("sales.search")}}',
+            type:'GET',
+            dataType: 'json',
+            paramName: 'q',
+            minChars:2,
+            onSearchStart: function(params){
+                console.log(params)
+                // if(params.q == '',params.q'){
+                //     return false;
+                // }
+            },
+            showNoSuggestionNotice: true,
+            // triggerSelectOnValidInput:true,
+            preventBadQueries:true,
+
+            onSelect: function (suggestion) {
+                // alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+                getProduct(suggestion.data)
+            }
+        });
 
         $(document).on('keydown', '.onlydigits', function (e) {
             return onlyNumbers(e);
@@ -165,11 +209,16 @@
             }
         });
 
-        $(document).on('change','#product_search', function(e){
-            var id = e.target.value;
-            if(id==null||id=='undefined'||id==""){
-                return false;
-            }
+
+
+    });
+
+     function getProduct(id){
+        // var id = e.target.value;
+        // console.log('value received ' + id)
+        if(id==null||id=='undefined'||id==""){
+        return false;
+        }else{
             $.ajax({
                 url:'/sales/add',
                 method: 'get',
@@ -178,22 +227,51 @@
                 res =>{
                     playsound('beep')
                     mountItems(res);
-                },
+            },
+            err => {
+                var payload = err.responseJSON;
+                if(payload.message){
+                    notify(payload.message,payload.type)
+                    playsound(payload.types)
+                }else{
+                    playsound('error')
+                    notify('Product could not be added','error')
+                }
+                    clearSelect()
 
-                err => {
-                    var payload = err.responseJSON;
-                    if(payload.message){
-                        notify(payload.message,payload.type)
-                        playsound(payload.types)
-                        }else{
-                            playsound('error')
-                            notify('Product could not be added','error')
-                        }
-                        clearSelect()
-                })
-        })
+            })
+        }
+    }
 
-    });
+    function getProductWithSku(sku)
+    {
+        if(sku == null || sku=="undefined" || sku==""){
+            return false;
+        }else{
+            $.ajax({
+                url:'/sales/add-sku',
+                method: 'get',
+                data:{sku}
+            }).then(
+            res =>{
+                playsound('beep')
+                mountItems(res);
+            },
+            err => {
+                var payload = err.responseJSON;
+                if(payload.message){
+                    notify(payload.message,payload.type)
+                    playsound(payload.types)
+                }else{
+                    playsound('error')
+                    notify('Product could not be added','error')
+                }
+                clearSelect()
+
+            })
+        }
+
+    }
 
     function boot(){
         if(window.localStorage.getItem('checkedout')){
@@ -376,7 +454,7 @@
 
     function clearSelect()
     {
-        $('#product_search').val(null).trigger('change')
+        $('#search').val('')
     }
 </script>
 @stop

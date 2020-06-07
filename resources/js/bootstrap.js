@@ -11,12 +11,14 @@ window.axios = require('axios');
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 window.$ = window.jQuery = require('jquery');
-window.Swal = require('sweetalert2')
+window.Swal = require('sweetalert2');
+window.onScan = require('onscan.js');
 
 require('select2');
 require('overlayscrollbars');
 require('../../vendor/almasaeed2010/adminlte/dist/js/adminlte');
 require('bootstrap4-toggle');
+require('devbridge-autocomplete');
 window.iziToast = iziToast = require('izitoast');
 window.printThis = require('print-this');
 window.LStorage = window.localStorage;

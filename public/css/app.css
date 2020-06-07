@@ -40405,3 +40405,36 @@ body.swal2-toast-column .swal2-toast .swal2-validation-message {
   height: calc(2.25rem + 2px) !important;
 }
 
+.autocomplete-suggestions {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  background: #FFF;
+  overflow: auto;
+  max-height: 200px !important;
+}
+
+.autocomplete-suggestion,
+.autocomplete-no-suggestion {
+  padding: 5px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.autocomplete-selected {
+  background: #F0F0F0;
+}
+
+.autocomplete-suggestions strong {
+  font-weight: normal;
+  color: #3399FF;
+}
+
+.autocomplete-group {
+  padding: 2px 5px;
+}
+
+.autocomplete-group strong {
+  display: block;
+  border-bottom: 1px solid #000;
+}
+

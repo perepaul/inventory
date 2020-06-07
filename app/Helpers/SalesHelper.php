@@ -56,8 +56,7 @@ class SalesHelper
     {
         $sale = $this->sale();
         $product = $this->productHelper->findProduct($product_id);
-        if ($this->filterSale($product_id)->count() > 1) {
-            dd($this->filterSale($product_id));
+        if ($this->filterSale($product_id)->count()) {
             return 'exists';
         }
 
@@ -67,6 +66,25 @@ class SalesHelper
         $saleItem = new SaleItem([
             'product_id' => $product->id,
             'quantity' => $qty,
+        ]);
+
+        $sale->sale_items()->save($saleItem);
+    }
+
+    public function addProductSku($sku)
+    {
+        $sale = $this->sale();
+        $product = $this->productHelper->addProductSku($sku);
+        if ($this->filterSale($product->id)->count()) {
+            return 'exists';
+        }
+
+        if ($product->quantity <= 0) {
+            return 'out_of_stock';
+        }
+        $saleItem = new SaleItem([
+            'product_id' => $product->id,
+            'quantity' => 1,
         ]);
 
         $sale->sale_items()->save($saleItem);
