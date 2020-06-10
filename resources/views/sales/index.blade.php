@@ -182,34 +182,6 @@
             return onlyNumbers(e);
         });
 
-        $('#product_search').select2({
-            placeholder: "Search products by Sku, Name or Scan Barcode",
-            allowClear: true,
-            "language": {
-            "noResults": function(){
-            return "No products foound";
-            }
-            },
-            ajax: {
-            url: '{{route("sales.search")}}',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                q: params.term // search term
-                };
-            },
-            // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
-            processResults: function (response) {
-                return {
-                results: response
-                };
-            },
-            cache:true,
-            }
-        });
-
-
 
     });
 
@@ -290,6 +262,8 @@
     {
         if(elem.value == 0 || isNaN(elem.value))
         {
+            $(elem).val($(elem).data('oldValue'));
+            notify('Quantity must be lower than 0', 'warning')
             return ;
         }
         valid = validateUpdate(elem)
@@ -338,26 +312,35 @@
 
     function deleteSale()
     {
-        con = confirm('are you sure you want to cancel sale');
-        if(con) {
-
-            $.ajax('sales/delete-all')
-            .then(res=>{
-                if(res.data)
-                {
-                    playsound('beep');
-                    mountItems(res)
-                }
-            },
-            err => {
-                payload = err.responseJSON;
-                if(payload.message)
-                {
-                    notify(payload.message,payload.type)
-                }
-                clearSelect()
-            })
-        }
+        Swal.fire({
+            'title':'Are you Sure',
+            'icon':'question',
+            'text':'This action will delete this sale!',
+            showCancelButton:true,
+            cancelButtonText:'Nope!',
+            confirmButtonText:'Yes Cancel Sale!',
+            confirmButtonColor:'#850d0d',
+            cancelButtonColor:'#307307'
+        }).then((result)=> {
+            if(result.value){
+                $.ajax('sales/delete-all')
+                .then(res=>{
+                    if(res.data)
+                    {
+                        playsound('beep');
+                        mountItems(res)
+                    }
+                },
+                err => {
+                    payload = err.responseJSON;
+                    if(payload.message)
+                    {
+                        notify(payload.message,payload.type)
+                    }
+                    clearSelect()
+                })
+            }
+        })
     }
 
     function validateCheckout()
