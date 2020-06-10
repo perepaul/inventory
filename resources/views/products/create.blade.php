@@ -1,5 +1,5 @@
 @extends('adminlte::page')
-@\@section('title','Create Inventory')
+@section('title','Create Inventory')
 @section('content_header')
 
 <!-- Content Header (Page header) -->

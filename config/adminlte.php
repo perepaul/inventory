@@ -237,6 +237,11 @@ return [
             'icon' => 'fa fa-fw fa-barcode',
         ],
         [
+            'text' => 'Inventory purchase   ',
+            'url'  => 'purchase',
+            'icon' => 'fas fa-fw fa-cash-register',
+        ],
+        [
             'text' => 'Employees',
             'url'  => 'users',
             'icon' => 'fa fa-fw fa-users',

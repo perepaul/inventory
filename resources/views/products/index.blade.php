@@ -1,5 +1,5 @@
 @extends('home')
-
+@section('title','Inventories')
 @section('content_header')
 
 <!-- Content Header (Page header) -->
@@ -7,12 +7,12 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1>All Products</h1>
+                <h1>All Inventories</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="{{route('home')}}">Home</a></li>
-                    <li class="breadcrumb-item active">Products</li>
+                    <li class="breadcrumb-item active">Inventories</li>
                 </ol>
             </div>
         </div>

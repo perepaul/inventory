@@ -17,4 +17,9 @@ class Product extends Model
         'image',
         'status'
     ];
+
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
+    }
 }

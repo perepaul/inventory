@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
+        "bootstrap": "^4.5.0",
         "bootstrap4-toggle": "^3.6.1",
         "devbridge-autocomplete": "^1.4.11",
         "icheck-bootstrap": "^3.0.1",
@@ -28,6 +29,7 @@
         "jquery": "^3.5.1",
         "onscan.js": "^1.5.2",
         "overlayscrollbars": "^1.12.0",
+        "popper.js": "^1.16.1",
         "print-js": "^1.0.63",
         "print-this": "^1.15.1",
         "select2": "^4.0.13",

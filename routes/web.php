@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/', function () {
         return view('home');
     })->name('home');
+
+    //sales
     Route::get('sales', 'SalesController@index')->name('sales.index');
     Route::get('sales/boot', 'SalesController@boot')->name('sales.boot');
     Route::get('sales/search', 'SalesController@search')->name('sales.search');
@@ -41,19 +43,32 @@ Route::middleware('auth')->group(function () {
     Route::get('sales/delete-all', 'SalesController@deleteAll')->name('sales.delete.all');
     Route::get('sales/{id}/update/{quantity}', 'SalesController@update')->name('sales.update');
     Route::post('sales/checkout', 'SalesController@checkout')->name('sales.checkout');
+
+    //sales receipt
     Route::get('sales/{reference}/print', 'SalesController@printRecept')->name('sales.print.receipt');
 
-
+    //inventories
     Route::resource('inventories', 'ProductsController')->only(['index', 'create', 'store', 'edit', 'update']);
     Route::get('inventories/{inventory}/destroy', 'ProductsController@destroy')->name('inventories.destroy');
+
+    //purchases
+
+    Route::get('purchase','PurchaseController@index')->name('purchase.index');
+    Route::post('purchase','PurchaseController@store')->name('purchase.store');
+
+    //profile
     Route::get('/profile', 'EmployeeController@showProfileForm');
     Route::post('/profile/{id}', 'EmployeeController@updateProfile')->name('user.updateProfile');
+
+    //users
     Route::get('/users', 'EmployeeController@index')->name('user.index');
     Route::get('/users/create', 'EmployeeController@create')->name('user.create');
     Route::post('/users/store', 'EmployeeController@store')->name('user.store');
     Route::get('/users/edit/{id}', 'EmployeeController@edit')->name('user.edit');
     Route::post('/users/{id}/update', 'EmployeeController@update')->name('user.update');
     Route::get('users/{id}/destroy', 'EmployeeController@destroy')->name('user.destroy');
+
+    //settings
     Route::get('/settings', 'StoreSettingsController@index')->name('settings.index');
     Route::post('/settings', 'StoreSettingsController@store')->name('settings.create');
     Route::put('/settings', 'StoreSettingsController@update')->name('settings.update');
@@ -72,8 +87,3 @@ Route::get('/reports/employees', function () {
     return view('reports.employee_report');
 });
 
-
-Route::get('/recipts', function () {
-
-    return view('receipts.index');
-});

@@ -17,6 +17,8 @@ window.onScan = require('onscan.js');
 require('select2');
 require('overlayscrollbars');
 require('../../vendor/almasaeed2010/adminlte/dist/js/adminlte');
+require('popper.js')
+require('bootstrap');
 require('bootstrap4-toggle');
 require('devbridge-autocomplete');
 window.iziToast = iziToast = require('izitoast');
