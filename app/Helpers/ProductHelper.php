@@ -13,7 +13,7 @@ class ProductHelper
     }
     public function getAllProducts()
     {
-        return $this->productModel::all();
+        return $this->productModel->orderBy('id','desc')->paginate(30);
     }
     public function findProduct(int $id)
     {

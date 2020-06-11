@@ -6,19 +6,23 @@ use App\User;
 
 class EmployeeHelper
 {
+    public $userModel;
+    public function __construct(User $user)
+    {
+        $this->userModel = $user;
+    }
     public function getAllEmployees()
     {
-        return User::all();
+        return $this->userModel->orderBy('id','desc')->paginate();
     }
 
     public function getEmployee(int $id)
     {
-        return User::findOrFail($id);
+        return $this->userModel->findOrFail($id);
     }
 
     public function createEmployee(array $data)
     {
-        // dd($data);
-        return User::create($data);
+        return $this->userModel->create($data);
     }
 }

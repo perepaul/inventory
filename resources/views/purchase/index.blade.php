@@ -71,6 +71,9 @@
                     </table>
                 </div>
                 <!-- /.card-body -->
+                <div class="card-footer mx-auto bg-white">
+                    {{$purchases->links()}}
+                </div>
             </div>
             <!-- /.card -->
 
