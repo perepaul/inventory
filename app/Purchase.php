@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Purchase extends Model
 {
     //
-    protected $fillable = ['product_id','user_id','quantity','price'];
+    protected $fillable = ['product_id','user_id','quantity','price','comment'];
     public function product()
     {
         return $this->belongsTo(Product::class);
