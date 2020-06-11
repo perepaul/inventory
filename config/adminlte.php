@@ -252,13 +252,21 @@ return [
             'icon' => 'fa fa-fw fa-chart-area',
             'submenu' => [
                 [
+                    'text'  => 'Profit and loss',
+                    'url'   => '#'
+                ],
+                [
                     'text'  => 'Sales Report',
                     'url'   => '#'
                 ],
                 [
-                    'text'  => 'Employee Sales Report',
+                    'text'  => 'Inventory report',
                     'url'   => '#'
-                ]
+                ],
+                [
+                    'text'  => 'Purchase report',
+                    'url'   => '#'
+                ],
             ]
         ],
 
