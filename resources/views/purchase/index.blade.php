@@ -38,10 +38,12 @@
                     <table id="example2" class="table table-stripped table-hover">
                         <thead>
                             <tr>
-                                <th width="400px">Product</th>
+                                <th width="300px">Product</th>
+                                <th>Purchased by</th>
                                 <th>Quantity</th>
                                 <th>Price</th>
                                 <th>Date</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -50,9 +52,13 @@
                                 <td>
                                     {{$purchase->product->name}}
                                 </td>
+                                <td>{{$purchase->user->name}}</td>
                                 <td>{{$purchase->quantity}}</td>
                                 <td> {{$purchase->price}}</td>
                                 <td>{{$purchase->created_at->format('d M, Y')}}</td>
+                                <td>
+                                    <button onclick="getPurchase({{$purchase->id}})" class="btn btn-primary btn-sm"><i class="fa fa-eye text-sm"></i></button>
+                                </td>
                             </tr>
                             @empty
                             <tr>
@@ -100,5 +106,21 @@
             }
         });
     })
+
+    function getPurchase(id)
+    {
+        $.ajax('purchase/'+id)
+        .then(res => {
+            $('#pur-product').val(res.data.product_name)
+            $('#pur-price').val(res.data.price)
+            $('#pur-quantity').val(res.data.quantity)
+            $('#pur-comment').val(res.data.comment)
+            $('#pur-user').val(res.data.user_name);
+           $('#view-purchase').modal();
+        },
+        err=>{
+            console.log(err)
+        })
+    }
 </script>
 @endsection

@@ -52,6 +52,8 @@ class PurchaseController extends Controller
         ]);
 
         $this->purchaseHelper->createPurchase(array_merge($request->except('_token'),['user_id'=>auth()->user()->id]));
+        session()->flash('message','Purchase Recorded');
+        return back();
     }
 
     /**
@@ -60,9 +62,19 @@ class PurchaseController extends Controller
      * @param  \App\Purchase  $purchase
      * @return \Illuminate\Http\Response
      */
-    public function show(Purchase $purchase)
+    public function show($id)
     {
-        //
+        $purchase = $this->purchaseHelper->getPurchase($id);
+        $data['product_name'] = $purchase->product->name;
+        $data['comment'] = $purchase->comment;
+        $data['quantity'] = $purchase->quantity;
+        $data['price'] = $purchase->price;
+        $data['user_name'] = $purchase->user->name;
+
+        return response()->json([
+            'success'=>true,
+            'data'=>$data
+        ]);
     }
 
     /**

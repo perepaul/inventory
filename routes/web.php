@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('purchase','PurchaseController@index')->name('purchase.index');
     Route::post('purchase','PurchaseController@store')->name('purchase.store');
+    Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');
 
     //profile
     Route::get('/profile', 'EmployeeController@showProfileForm');

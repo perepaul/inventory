@@ -28,9 +28,10 @@ class PurchaseHelper
 
     public function createPurchase(array $data)
     {
+        // dd($data);
         $product = $this->productHelper->findProduct((int) $data['product_id']);
         $product->update([
-            'quantity' => $product->quatity + $data['quantity'],
+            'quantity' => $product->quantity + $data['quantity'],
             'purchase_price' => $data['price'],
         ]);
         return $this->purchaseModel->create($data);
