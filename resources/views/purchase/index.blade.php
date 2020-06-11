@@ -29,7 +29,8 @@
             <div class="card">
                 <div class="card-header text-right">
 
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#create-purchase">Add Purchase</button>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#create-purchase">Add
+                        Purchase</button>
 
                 </div>
                 <!-- /.card-header -->
@@ -51,7 +52,7 @@
                                 </td>
                                 <td>{{$purchase->quantity}}</td>
                                 <td> {{$purchase->price}}</td>
-                                <td>Date here</td>
+                                <td>{{$purchase->created_at->format('d M, Y')}}</td>
                             </tr>
                             @empty
                             <tr>
