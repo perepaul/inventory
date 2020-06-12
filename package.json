@@ -22,6 +22,7 @@
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
         "bootstrap": "^4.5.0",
+        "bootstrap-datepicker": "^1.9.0",
         "bootstrap4-toggle": "^3.6.1",
         "devbridge-autocomplete": "^1.4.11",
         "icheck-bootstrap": "^3.0.1",

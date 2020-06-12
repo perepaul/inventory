@@ -76,7 +76,10 @@ Route::middleware('auth')->group(function () {
 });
 
 
-
+Route::get('reports/inventory','ReportController@inventory')->name('reports.inventory');
+Route::get('reports/purchase','ReportController@inventory')->name('reports.purchase');
+Route::get('reports/sales','ReportController@sales')->name('reports.sales');
+Route::get('reports/profit-loss','ReportController@profitLoss')->name('reports.profit.loss');
 
 Route::get('/reports', function () {
 

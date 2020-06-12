@@ -11,9 +11,10 @@ class ProductHelper
     {
         $this->productModel = $product;
     }
-    public function getAllProducts()
+    public function getAllProducts($status = 1, $paginate = [])
     {
-        return $this->productModel->orderBy('id','desc')->paginate(30);
+        $products = $this->productModel->where('status',$status)->orderBy('id','desc')->paginate(1);
+        return $products;
     }
     public function findProduct(int $id)
     {
@@ -32,5 +33,10 @@ class ProductHelper
     public function addProductSku($sku)
     {
         return $this->productModel->where('sku', $sku)->firstOrFail();
+    }
+
+    public function getLowStockProduct()
+    {
+        return $this->productModel->whereColumn('alert_quantity','>=','quantity')->paginate(10,['*'],'low_stock');
     }
 }

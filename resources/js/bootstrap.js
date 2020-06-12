@@ -21,6 +21,7 @@ require('popper.js')
 require('bootstrap');
 require('bootstrap4-toggle');
 require('devbridge-autocomplete');
+require('bootstrap-datepicker');
 window.iziToast = iziToast = require('izitoast');
 window.printThis = require('print-this');
 window.LStorage = window.localStorage;

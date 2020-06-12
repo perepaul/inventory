@@ -173,5 +173,15 @@ onlyNumbers = (e) => {
     }
 }
 
+// toggle collapse class
 
+$(document).on('click','#filter-collapse', function(){
+    $(this).toggleClass(()=>{
+        if($(this).hasClass('fa-minus')){
+            return 'fa-plus';
+        }else{
+            return 'fa-minus';
+        }
+    })
+})
 
