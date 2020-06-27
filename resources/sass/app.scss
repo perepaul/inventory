@@ -12,6 +12,8 @@
 @import '~select2/dist/css/select2.min';
 @import '~sweetalert2/src/sweetalert2.scss';
 @import '~bootstrap-datepicker/dist/css/bootstrap-datepicker3.css';
+@import '~datatables.net-bs4/css/dataTables.bootstrap4.css';
+@import '~datatables.net-responsive-bs4/css/responsive.bootstrap4.css';
 
 // Bootstrap
 // Already imported by AdminLTE
@@ -49,4 +51,21 @@
 .autocomplete-group strong {
     display: block;
     border-bottom: 1px solid #000;
+}
+
+.no-sort::after {
+    display: none!important;
+}
+
+.no-sort {
+    pointer-events: none!important;
+    cursor: default!important;
+}
+
+.table {
+    width:100%;
+}
+
+.card {
+    // overflow-x: scroll;
 }

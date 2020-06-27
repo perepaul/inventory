@@ -57,7 +57,8 @@
                                 <td> {{$purchase->price}}</td>
                                 <td>{{$purchase->created_at->format('d M, Y')}}</td>
                                 <td>
-                                    <button onclick="getPurchase({{$purchase->id}})" class="btn btn-primary btn-sm"><i class="fa fa-eye text-sm"></i></button>
+                                    <button onclick="getPurchase({{$purchase->id}})" class="btn btn-primary btn-sm"><i
+                                            class="fa fa-eye text-sm"></i></button>
                                 </td>
                             </tr>
                             @empty
@@ -71,9 +72,6 @@
                     </table>
                 </div>
                 <!-- /.card-body -->
-                <div class="card-footer mx-auto bg-white">
-                    {{$purchases->links()}}
-                </div>
             </div>
             <!-- /.card -->
 

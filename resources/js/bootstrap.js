@@ -19,6 +19,10 @@ require('overlayscrollbars');
 require('../../vendor/almasaeed2010/adminlte/dist/js/adminlte');
 require('popper.js')
 require('bootstrap');
+require('datatables.net')
+require('datatables.net-bs4')
+require('datatables.net-responsive')
+require('datatables.net-responsive-bs4')
 require('bootstrap4-toggle');
 require('devbridge-autocomplete');
 require('bootstrap-datepicker');

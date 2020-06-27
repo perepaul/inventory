@@ -36,10 +36,10 @@ class SalesHelper
         //
     }
 
-    public function sale()
+    public function sale($status = 0)
     {
         $user = auth()->user();
-        $current_sale = $user->sales()->where('status', 0)->first();
+        $current_sale = $user->sales()->where('status', $status)->first();
         if ($current_sale) return $current_sale;
         $reference_no = generateRefNo();
         while ($this->salesModel::where('reference_no', $reference_no)->get()->count()) {
@@ -183,5 +183,13 @@ class SalesHelper
         });
 
         return $filtered;
+    }
+
+    public function bestSellingProducts($limit = 5)
+    {
+        dd('here');
+        $sales = $this->sale(1);
+        $products = $sales->sale_items;
+        return $products;
     }
 }

@@ -53,8 +53,8 @@ Route::middleware('auth')->group(function () {
 
     //purchases
 
-    Route::get('purchase','PurchaseController@index')->name('purchase.index');
-    Route::post('purchase','PurchaseController@store')->name('purchase.store');
+    Route::get('purchase', 'PurchaseController@index')->name('purchase.index');
+    Route::post('purchase', 'PurchaseController@store')->name('purchase.store');
     Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');
 
     //profile
@@ -76,10 +76,10 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::get('reports/inventory','ReportController@inventory')->name('reports.inventory');
-Route::get('reports/purchase','ReportController@inventory')->name('reports.purchase');
-Route::get('reports/sales','ReportController@sales')->name('reports.sales');
-Route::get('reports/profit-loss','ReportController@profitLoss')->name('reports.profit.loss');
+Route::get('reports/inventory', 'ReportController@inventory')->name('reports.inventory');
+Route::get('reports/purchase', 'ReportController@purchase')->name('reports.purchase');
+Route::get('reports/sales', 'ReportController@sales')->name('reports.sales');
+Route::get('reports/profit-loss', 'ReportController@profitLoss')->name('reports.profit.loss');
 
 Route::get('/reports', function () {
 
@@ -90,4 +90,3 @@ Route::get('/reports/employees', function () {
 
     return view('reports.employee_report');
 });
-

@@ -18,7 +18,7 @@ class PurchaseHelper
 
     public function getPurchases()
     {
-        return $this->purchaseModel->orderBy('id','desc')->paginate(30);
+        return $this->purchaseModel->orderBy('id', 'desc')->get();
     }
 
     public function getPurchase($id)
