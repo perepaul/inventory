@@ -1,5 +1,7 @@
 <?php
 
+use App\Helpers\MenuFilter;
+
 return [
 
     /*
@@ -131,7 +133,7 @@ return [
     'sidebar_scrollbar_theme' => 'os-theme-light',
     'sidebar_scrollbar_auto_hide' => 'l',
     'sidebar_nav_accordion' => true,
-    'sidebar_nav_animation_speed' => 300,
+    'sidebar_nav_animation_speed' => 1000,
 
     /*
     |--------------------------------------------------------------------------
@@ -230,26 +232,31 @@ return [
             'text' => 'Sales',
             'url'  => 'sales',
             'icon' => 'fas fa-fw fa-money-check-alt',
+            'can' => 'create-sales'
         ],
         [
             'text' => 'Inventories',
             'url'  => 'inventories',
             'icon' => 'fa fa-fw fa-barcode',
+            'can' => 'read-inventory'
         ],
         [
             'text' => 'Inventory purchase   ',
             'url'  => 'purchase',
             'icon' => 'fas fa-fw fa-cash-register',
+            'can' => 'read-purchase',
         ],
         [
             'text' => 'Employees',
             'url'  => 'users',
             'icon' => 'fa fa-fw fa-users',
+
         ],
         [
             'text' => 'Reports',
             'url'  => '#',
             'icon' => 'fa fa-fw fa-chart-area',
+            'can' =>'read-reports',
             'submenu' => [
                 [
                     'text'  => 'Sales Report',
@@ -270,11 +277,15 @@ return [
             ]
         ],
 
-        ['header' => 'account_settings',],
+        [
+            'header' => 'account_settings',
+            'can' => 'read-profile'
+        ],
         [
             'text' => 'profile',
             'url'  => 'profile',
             'icon' => 'fas fa-fw fa-user',
+            'can' => 'read-profile'
         ],
         // [
         //     'text' => 'change_password',
@@ -353,7 +364,8 @@ return [
         JeroenNoten\LaravelAdminLte\Menu\Filters\ActiveFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\SubmenuFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\ClassesFilter::class,
-        JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
+        // JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
+        MenuFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\LangFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\DataFilter::class,
     ],

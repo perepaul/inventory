@@ -46,7 +46,6 @@
                 @yield('content')
             </div>
         </div>
-        @include('partials.sound')
     </div>
 
     {{-- Footer --}}

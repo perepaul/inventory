@@ -88,6 +88,18 @@
 <script>
     $(function () {
 
+        onScan.attachTo(document, {
+            suffixKeyCodes: [13], // enter-key expected at the end of a scan
+            reactToPaste: true, // Compatibility to built-in scanners in paste-mode (as opposed to keyboard-mode)
+            minLength:4,
+            onScan: function (sCode, iQty) { // Alternative to document.addEventListener('scan')
+               
+            },
+            onKeyDetect: function (iKeyCode) { // output all potentially relevant key events - great for debugging!
+                // console.log('Pressed: ' + iKeyCode);
+            }
+        });
+
         $('#product').autocomplete({
             serviceUrl: '{{route("sales.search")}}',
             type:'GET',

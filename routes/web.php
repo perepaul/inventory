@@ -26,7 +26,8 @@ Route::middleware('web')->group(function () {
 });
 
 
-Route::get('get-role-permissions/{id}', 'EmployeeController@getRolePermissions');
+Route::get('get-role-permissions/{id}', 'EmployeeController@getRolePermissions')->name('role.permissions');
+Route::get('employee-permissions/{id}', 'EmployeeController@getEmployeePermissions')->name('employee.permissions');
 
 Route::middleware('auth')->group(function () {
     Route::get('/', function () {

@@ -147,4 +147,12 @@ class EmployeeController extends Controller
             'data' => $this->RnPHelper->getRolePermissions($id, true)
         ]);
     }
+
+    public function getEmployeePermissions($id)
+    {
+        return response([
+            'success' => true,
+            'data' => $this->RnPHelper->getEmployeePermissions($id,true)
+        ]);
+    }
 }

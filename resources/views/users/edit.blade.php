@@ -95,8 +95,8 @@
 @section('load_js')
 <script>
     $(function(){
-        handleRoleSelect({{(int) $employee->roles()->first()['id']}})
+        handleRoleSelect('{{route("employee.permissions",$employee->id)}}')
     })
-    $('#role-select').change(()=>handleRoleSelect())
+    // $('#role-select').change(()=>handleRoleSelect())
 </script>
 @endsection

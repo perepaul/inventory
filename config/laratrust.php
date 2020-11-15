@@ -300,5 +300,6 @@ return [
         |
         */
         'assign_permissions_to_user' => true,
+        'assign_permissions_to_role'=>false
     ]
 ];

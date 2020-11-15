@@ -19,7 +19,7 @@ const sound_error = document.getElementById('sound-error');
 const sound_beep = document.getElementById('sound-beep');
 
 
-notify = (message, type, sound = true) => {
+notify = (message, type, sound = false) => {
     if (sound == true) {
         playsound(type);
     }
@@ -93,12 +93,15 @@ validateUpdate = (elem) => {
     return valid;
 }
 
-handleRoleSelect = (val) => {
-    val = typeof (val) !== 'undefined' ? val : $('#role-select').val();
+handleRoleSelect = (url = '') => {
+    // val = typeof (val) !== 'undefined' ? val : $('#role-select').val();
+    // if(url == ''){
+    //     url = '/'
+    // }
     $('.p-checkbox').attr('checked', false)
     $.ajax({
         method: 'get',
-        url: '/get-role-permissions/' + val,
+        url: url,
     })
         .then(res => tickCheckbox(res.data), eres => console.log(eres))
 }

@@ -93,7 +93,14 @@
 
 @section('load_js')
 <script>
-    $('#role-select').change(()=>handleRoleSelect())
+    $(function() {
+
+        $('#role-select').change(()=>{
+            var id = $('#role-select').val()
+            var route = `/get-role-permissions/${id}`
+            handleRoleSelect(route)
+        })
+    })
 </script>
 
 @endsection

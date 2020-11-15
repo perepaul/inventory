@@ -54,6 +54,8 @@
 <body class="@yield('classes_body')" @yield('body_data')>
 
     @yield('body')
+    @include('partials.sound')
+
 
     @if(! config('adminlte.enabled_laravel_mix'))
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
