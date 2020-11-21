@@ -1,0 +1,71 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic');
+@import '~@fortawesome/fontawesome-free/css/all.css';
+// OverlayScrollbars
+@import '~overlayscrollbars/css/OverlayScrollbars.css';
+// iCheck
+@import '~icheck-bootstrap/icheck-bootstrap.css';
+// AdminLTE
+@import '../../vendor/almasaeed2010/adminlte/dist/css/adminlte.css';
+@import '~bootstrap4-toggle/css/bootstrap4-toggle.min';
+@import '~izitoast/dist/css/iziToast.css';
+@import '~select2/dist/css/select2.min';
+@import '~sweetalert2/src/sweetalert2.scss';
+@import '~bootstrap-datepicker/dist/css/bootstrap-datepicker3.css';
+@import '~datatables.net-bs4/css/dataTables.bootstrap4.css';
+@import '~datatables.net-responsive-bs4/css/responsive.bootstrap4.css';
+
+// Bootstrap
+// Already imported by AdminLTE
+//@import '~bootstrap/scss/bootstrap';
+
+// Fix for select 2
+.select2-selection.select2-selection--single {
+    // height: inherit !important;
+   height: calc(2.25rem + 2px) !important;
+}
+
+.autocomplete-suggestions {
+    //  border: 1px solid #999;
+    //  border-top: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+     background: #FFF;
+     overflow: auto;
+     max-height: 200px !important;
+    }
+.autocomplete-suggestion, .autocomplete-no-suggestion {
+    padding: 5px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+}
+.autocomplete-selected {
+    background: #F0F0F0;
+}
+.autocomplete-suggestions strong {
+    font-weight: normal;
+    color: #3399FF; }
+.autocomplete-group {
+    padding: 2px 5px;
+}
+.autocomplete-group strong {
+    display: block;
+    border-bottom: 1px solid #000;
+}
+
+.no-sort::after {
+    display: none!important;
+}
+
+.no-sort {
+    pointer-events: none!important;
+    cursor: default!important;
+}
+
+.table {
+    width:100%;
+}
+
+.card {
+    // overflow-x: scroll;
+}
