@@ -14,13 +14,12 @@ class AddNeccessaryColumnsToProductTable extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            // $table->dropColumn('alert_quantity');
-            // $table->dropColumn('purchase_price');
-            // $table->dropColumn('price');
-            // $table->dropColumn('discount');
-            // $table->dropColumn('quantity');
-            // $table->dropColumn('description');
-            // $table->string('description');
+            $table->dropColumn('alert_quantity');
+            $table->dropColumn('purchase_price');
+            $table->dropColumn('price');
+            $table->dropColumn('discount');
+            $table->dropColumn('quantity');
+            $table->string('description');
             $table->unsignedDouble('pieces_retail_price');
             $table->unsignedDouble('pieces_wholesale_price');
             $table->unsignedDouble('pieces_cost_price');

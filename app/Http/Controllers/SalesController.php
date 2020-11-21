@@ -157,6 +157,7 @@ class SalesController extends Controller
     {
 
         $sale = $this->salesHelper->sale();
+        dd($sale);
         $markup = '';
         $total_discount = 0;
         $total = 0;
