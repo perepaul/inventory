@@ -120,19 +120,6 @@ class ProductsController extends Controller
         return redirect()->route('inventories.index');
     }
 
-    public function detachUnit($product_id,$unit_id){
-        try{
-            $this->productHelper->detachUnit($product_id, $unit_id);
-            return response()->json('Unit Removed!');
-        }catch(ModelNotFoundException $e)
-        {
-            Log::error($e);
-            return response()->json('Failed to remove unit!',400);
-        }
-        
-
-    }
-
     private function validateReq(Request $request, $update = false, $ignore_id = null)
     {
         $uniqueRule = (($update) && !is_null($ignore_id)) ? "unique:products,sku,{$ignore_id}|" : "unique:products|";

@@ -432,7 +432,6 @@
             })
 
         }else{
-    alert('inside  the block')
             checkout(total,discount,payment_method);
         }
 
@@ -440,7 +439,6 @@
 
     function checkout(total, total_discount, payment_method_id)
     {
-        alert('called here')
         _token = '{{csrf_token()}}'
         $.ajax({
             method:'post',

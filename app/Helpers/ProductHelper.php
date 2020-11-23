@@ -43,12 +43,6 @@ class ProductHelper
         return $this->productModel->whereColumn('alert_quantity', '>=', 'quantity')->paginate(10, ['*'], 'low_stock');
     }
 
-    public function detachUnit($product_id, $unit_id)
-    {
-       $product =  $this->findProduct($product_id);
-       return $product->units()->detach($unit_id);
-    }
-
     public function getBestSellingProducts($limit = 2)
     {
         // return $this->saleItem->groupBy('*')->select('*', \DB::raw('count(product_id) as total'))->get();
