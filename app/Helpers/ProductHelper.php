@@ -17,7 +17,7 @@ class ProductHelper
     }
     public function getAllProducts($status = 1)
     {
-        return $this->productModel->where('status', $status)->orderBy('id', 'desc')->get();
+        return $this->productModel::where('status', $status)->orderBy('id', 'desc')->paginate(10);
     }
     public function findProduct(int $id)
     {

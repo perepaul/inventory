@@ -216,7 +216,6 @@ class SalesController extends Controller
                 'type' => 'warning'
             ], 400);
         }
-        // dd($checkedout);
         if($checkedout === 'total_mismatch'){
             return response()->json([
                 'succes' => false,
