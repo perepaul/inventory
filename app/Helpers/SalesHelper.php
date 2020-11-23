@@ -85,7 +85,9 @@ class SalesHelper
     {
         $sale = $this->sale();
         $sale_item = $this->filterSale($id);
-        
+        if($sale_item->product->outOfStock($sale_item->unit,$qty)){
+            return 'insufficient_stock';
+        }
         $param = ['quantity' => $qty];
         if ($qty > 0) {
             return  $sale_item->update($param);

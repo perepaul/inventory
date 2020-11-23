@@ -87,6 +87,13 @@ class SalesController extends Controller
     public function update($id, $quantity)
     {
         $updated = $this->salesHelper->updateSale($id, $quantity);
+        if($updated === 'insufficient_stock'){
+            return response()->json([
+                'success' => false,
+                'message' => 'Available stocks are less than '.$quantity,
+                'type' => 'error'
+            ], 400);
+        }
         if (!$updated) {
             return response()->json([
                 'success' => false,
@@ -288,7 +295,7 @@ class SalesController extends Controller
         $markup = '<tr id="' . $product->id . '">';
         $markup .=    '<td>' . $product->name . '</td>';
         $markup .=     '<td>';
-        $markup .=    view('partials.select', ['product' => $product, 'value' => $quantity]);
+        $markup .=    view('partials.select', ['product' => $product, 'value' => $quantity,'unit'=>$saleItem->unit]);
         $markup .=     '</td>';
         $markup .=    '<td>' . format_currency($price) . '</td>';
         $markup .=    '<td>';

@@ -24,9 +24,9 @@ class Product extends Model
         return $this->pieces_stock + $this->carton_stock;
     }
 
-    public function outOfStock($unit = null)
+    public function outOfStock($unit = null, $quantity = 0)
     {
-        return $this->stock($unit) < 0;
+        return $this->stock($unit) < $quantity;
     }
 
     public function price($type = 'retail',$unit = 'pieces')
