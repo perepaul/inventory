@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ProductHelper;
-use App\Helpers\SalesHelper;
+use Throwable;
 use App\PaymentMethod;
+use App\Helpers\SalesHelper;
 use Illuminate\Http\Request;
+use App\Helpers\ProductHelper;
+use Illuminate\Support\Facades\Log;
 
 class SalesController extends Controller
 {
@@ -48,21 +50,21 @@ class SalesController extends Controller
 
     public function addProduct(Request $request)
     {
-        dd($request->all());
         // dd($request->all());
-        // $sale_items = $this->salesHelper->addToSale($request->id, $request->type);
-        // if ($sale_items == 'exists') {
-        //     return response()->json([
-        //         'message' => "Product already added to sale",
-        //         'type' => 'warning'
-        //     ], 400);
-        // } elseif ($sale_items == 'out_of_stock') {
-        //     return response()->json([
-        //         'message' => "Product out of stock",
-        //         'type' => 'warning'
-        //     ], 400);
-        // }
-        // return $this->returnRes();
+        // dd($request->all());
+        $sale_items = $this->salesHelper->addToSale($request->id, $request->type);
+        if ($sale_items == 'exists') {
+            return response()->json([
+                'message' => "Product already added to sale",
+                'type' => 'warning'
+            ], 400);
+        } elseif ($sale_items == 'out_of_stock') {
+            return response()->json([
+                'message' => "Product out of stock",
+                'type' => 'warning'
+            ], 400);
+        }
+        return $this->returnRes();
     }
 
     public function addProductSku(Request $request)
@@ -95,17 +97,89 @@ class SalesController extends Controller
         return $this->returnRes();
     }
 
+    public function updateSaleType($type)
+    {
+        if(!in_array($type,['retail','wholesale'])){
+            return response()->json([
+                'success' => false,
+                'message' => 'unsupported sale type detected!',
+                'type' => 'warning'
+            ], 400);
+        }
+        if(!$this->salesHelper->updateSaleType($type))
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'unable to update sale type!',
+                'type' => 'error'
+            ], 400);
+        }
+        return $this->returnRes();
+    }
+
     public function deleteItem($id)
     {
-        $deleted = $this->salesHelper->deleteSaleItem($id);
-
-        if (!$deleted) {
+        try{
+            $this->salesHelper->deleteSaleItem($id);
+        }catch(\Throwable $e){
+            Log::error($e);
             return response()->json([
                 'success' => false,
                 'message' => 'Item could not be deleted',
                 'type' => 'error'
             ], 400);
         }
+
+        return $this->returnRes();
+    }
+
+    public function calculateDiscount($discount)
+    {
+        if(empty($discount)){
+            $discount = 0;
+        }
+        try{
+            $this->salesHelper->calculateDiscount($discount??0);
+        }catch(\Throwable $e){
+            Log::error($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'Discount couldn\'t be applied',
+                'type' => 'error'
+            ], 400);
+        }
+
+        return $this->returnRes();
+    }
+
+    public function changeUnit($id,$unit)
+    {
+        if(!in_array($unit,['pieces','carton'])){
+            return response()->json([
+                'succes' => false,
+                'message' => 'Unsupported unit detected!',
+                'type' => 'error'
+            ], 400);
+        }
+
+        try {
+           $response = $this->salesHelper->changeUnit($id,$unit);
+           if($response === 'out_of_stock'){
+            return response()->json([
+                'succes' => false,
+                'message' => 'Item out of '.$unit.' stock',
+                'type' => 'error'
+            ], 400);
+           }
+        } catch (\Throwable $e) {
+            Log::error($e);
+            return response()->json([
+                'succes' => false,
+                'message' => 'Failed to update sale item unit!',
+                'type' => 'error'
+            ], 400);
+        }
+
         return $this->returnRes();
     }
 
@@ -142,6 +216,14 @@ class SalesController extends Controller
                 'type' => 'warning'
             ], 400);
         }
+        // dd($checkedout);
+        if($checkedout === 'total_mismatch'){
+            return response()->json([
+                'succes' => false,
+                'message' => 'Total sale cannot be lower than total cost price',
+                'type' => 'warning'
+            ],400);
+        }
         if (!$checkedout) {
             return response()->json([
                 'succes' => false,
@@ -157,16 +239,14 @@ class SalesController extends Controller
     {
 
         $sale = $this->salesHelper->sale();
-        dd($sale);
         $markup = '';
-        $total_discount = 0;
+        $discount = $sale->discount ?? 0;
         $total = 0;
         foreach ($sale->sale_items->all() as $saleItem) {
-            dd($saleItem->product->price);
-            $total_discount += $saleItem->product->discount * $saleItem->quantity;
-            $total += ($saleItem->product->price * $saleItem->quantity);
-            // $grand_total += $g_total - $total_discount;
-            $markup .= $this->tableRow($saleItem->product, $saleItem->quantity);
+            $quantity = $saleItem->quantity;
+            $price = $saleItem->product->price($sale->type,$saleItem->unit);
+            $total += ($price * $quantity);
+            $markup .= $this->tableRow($saleItem,$price,$quantity);
         }
 
         if (empty($markup)) {
@@ -174,9 +254,10 @@ class SalesController extends Controller
         }
         $data = array(
             'html' => $markup,
-            'total' => format_currency($total - $total_discount),
+            'total' => format_currency($total - $discount),
             'sub_total' => format_currency($total),
-            'total_discount' => format_currency($total_discount)
+            'type'=>$sale->type,
+            'discount' => $discount
         );
         if ($checkout) {
             $printData = $this->gatherPrintData();
@@ -200,24 +281,25 @@ class SalesController extends Controller
         $lastSale = $this->salesHelper->getUserLastSale();
         return $lastSale->reference_no;
     }
-    private function tableRow($product, $quantity = 1)
+    private function tableRow($saleItem,$price, $quantity = 1)
     {
-        $product->price('oindffoindf');
+        $product = $saleItem->product;
+        $ctn = $pcs = '';
+        $saleItem->unit == 'carton'?$ctn = 'selected':$pcs = 'selected';
         $markup = '<tr id="' . $product->id . '">';
         $markup .=    '<td>' . $product->name . '</td>';
         $markup .=     '<td>';
         $markup .=    view('partials.select', ['product' => $product, 'value' => $quantity]);
         $markup .=     '</td>';
-        $markup .=    '<td>' . format_currency($product->price('ohdnfoidfoi')) . '</td>';
+        $markup .=    '<td>' . format_currency($price) . '</td>';
         $markup .=    '<td>';
-                    $markup .= '<select name="unit_id" class="form-control">';
-                        foreach($product->units as $unit){
-                            $markup .= "<option value='{$unit->id}'>{$unit->name}({$unit->code})</option>";
-                        }
+                    $markup .= '<select name="unit" class="form-control" onchange="changeUnit('.$product->id.')">';
+                        $markup .= "<option value='pieces' {$pcs}>Pieces(pcs)</option>";
+                        $markup .= "<option value='carton' {$ctn}>Carton(ctn)</option>";
                     $markup .= '</select>';
         $markup .=    '</td>';
         // $markup .=    '<td><input type="text" name="discount" value="' . $product->discount * $quantity . '" class="form-control onlydigits no-input"></td>';
-        $markup .=    '<td>' . format_currency($product->price * $quantity) . '</td>';
+        $markup .=    '<td>' . format_currency($price * $quantity) . '</td>';
         $markup .=    '<td><button onclick="delete_sale_item(' . $product->id . ')" class=" btn text-danger text-lg btn-sm text-sm">&times;</i></button></td>';
         $markup .=    '</tr>';
         return $markup;

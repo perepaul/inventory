@@ -56,28 +56,14 @@
                                 <thead class="bg-teal">
                                     <tr>
                                         <th width="250px">Name</th>
-                                        <th width="160px">Quantity</th>
+                                        <th width="10px;">Quantity</th>
                                         <th>Price </th>
-                                        <th width="120px">Discount</th>
+                                        <th>Unit</th>
                                         <th>Total</th>
                                         <th>&nbsp;</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-sm" id="table-details">
-                                    {{-- <tr>
-                                        <td class="p-2">Name</td>
-                                        <td class="p-2">
-                                            @include('partials.select')
-                                        </td>
-                                        <td class="p-2">₦300000</td>
-                                        <td class="p-2"><input type="text" name="discount" class="form-control"></td>
-                                        <td class="p-2">₦30000</td>
-                                        <td class="p-2"><button
-                                                class=" btn btn-danger btn-sm text-sm">&times;</i></button></td>
-                                    </tr> --}}
-                                    {{-- <tr>
-                                        <td colspan="5" class="text-center">Nothing Here!</td>
-                                    </tr> --}}
 
                                 </tbody>
 
@@ -87,30 +73,29 @@
 
                         <div class="col-md-3">
                             <div class="p-3 bg-teal w-100 m-0">
-
-                                <div class="form-group text-sm">
-                                    <label for="#">Discount</label>
-                                    <input type="text" class="form-control onlydigits no-input" id="total_discount"
-                                        placeholder="Discount Price">
-                                </div>
-
-                                <div class="form-group text-sm">
-                                    <label for="#">Subtotal</label>
-                                    <input type="text" class="form-control onlydigits no-input" id="sub_total"
-                                        placeholder="Total ">
-                                </div>
-                                <div class="form-group text-sm">
-                                    <label for="#">Grand Total</label>
-                                    <input type="text" class="form-control onlydigits no-input" id="total"
-                                        placeholder="Total ">
-                                </div>
-                                <div class="form-group text-sm">
+                            <div class="form-group text-sm">
                                     <label for="type">Type</label>
-                                    <select name="type" id="type" class="form-control">
+                                    <select name="type" id="type" class="form-control" onchange="changeSaleType()">
                                         <option value="retail" selected>Retail</option>
                                         <option value="wholesale">Wholesale</option>
                                     </select>
                                 </div>
+                                <div class="form-group text-sm">
+                                    <label for="#">Subtotal</label>
+                                    <input type="text" class="form-control onlydigits no-input" id="sub_total"
+                                        placeholder="Subtotal ">
+                                </div>
+                                <div class="form-group text-sm">
+                                    <label for="#">Discount</label>
+                                    <input type="text" class="form-control onlydigits" id="discount" onchange="calculateDiscount()"
+                                        placeholder="Discount" value="0" name="discount">
+                                </div>
+                                <div class="form-group text-sm">
+                                    <label for="#">Grand Total</label>
+                                    <input type="text" class="form-control onlydigits no-input" id="total"
+                                        placeholder="Subtotal ">
+                                </div>
+                                
                                 <div class="form-group text-sm">
                                     <label for="#">Payment Method</label>
                                     <select name="payment_method" id="payment_method" class="form-control">
@@ -170,12 +155,7 @@
             dataType: 'json',
             paramName: 'q',
             minChars:2,
-            onSearchStart: function(params){
-                console.log(params)
-                // if(params.q == '',params.q'){
-                //     return false;
-                // }
-            },
+            onSearchStart: function(params){},
             showNoSuggestionNotice: true,
             // triggerSelectOnValidInput:true,
             preventBadQueries:true,
@@ -271,7 +251,7 @@
         if(elem.value == 0 || isNaN(elem.value))
         {
             $(elem).val($(elem).data('oldValue'));
-            notify('Quantity must be lower than 0', 'warning')
+            notify('Quantity cannot be lower than 1', 'warning')
             return ;
         }
         valid = validateUpdate(elem)
@@ -294,6 +274,72 @@
        }else{
 
        }
+    }
+
+    function calculateDiscount()
+    {
+        discount = $('[name=discount]').val();
+        if(discount == ''){
+            discount = 0;
+        }
+        $.ajax('sales/discount/'+discount)
+        .then(
+            res => {
+               playsound('beep')
+               mountItems(res)
+           },
+           err => {
+               payload = err.responseJSON;
+               if(payload.message)
+               {
+                notify(payload.message,payload.type)
+               }else{
+                   notify('Oops! an error occured!','error')
+               }
+               clearSelect()
+           }
+        )
+    }
+    function changeSaleType()
+    {
+        var type = $('[name=type]').val()
+        $.ajax('sales/update-type/'+type)
+        .then(
+            res => {
+                playsound('beep');
+                mountItems(res);
+            },
+            err => {
+                payload = err.responseJSON;
+               if(payload.message)
+               {
+                notify(payload.message,payload.type)
+               }else{
+                   notify('Oops! an error occured!','error')
+               }
+            }
+        )
+    }
+
+    function changeUnit(id)
+    {
+        var unit = $('[name=unit]').val()
+        $.ajax('sales/'+id+'/change-unit/'+unit)
+        .then(
+            res => {
+                playsound('beep');
+                mountItems(res);
+            },
+            err => {
+                payload = err.responseJSON;
+               if(payload.message)
+               {
+                notify(payload.message,payload.type)
+               }else{
+                   notify('Oops! an error occured!','error')
+               }
+            }
+        )
     }
     function delete_sale_item(id)
     {
@@ -354,11 +400,11 @@
     function validateCheckout()
     {
         sub_total = $('#sub_total').val()
-        total_discount = $('#total_discount').val()
+        discount = $('#discount').val()
         payment_method = $('#payment_method').val()
         total = $('#total').val()
-        r_sub_total = parseInt(sub_total.replace(',',''))
-        r_total_discount = parseInt(total_discount.replace(',',''))
+        sub_total = parseInt(sub_total.replace(',',''))
+        discount = parseInt(discount.replace(',',''))
         total = parseInt(total.replace(',',''))
 
         if(typeof(payment_method) == 'null' || payment_method == "" || typeof(payment_method) == 'undefined'|| isNaN(payment_method) )
@@ -367,8 +413,7 @@
             return false;
         }
 
-
-        if(r_total_discount > r_sub_total)
+        if(discount > total)
         {
             text = "Total Discount is grater than the Grand total"
             Swal.fire({
@@ -382,18 +427,20 @@
             }).
                 then((result) => {
                     if (result.value) {
-                        checkout(total,r_total_discount,payment_method);
+                        checkout(total,discount,payment_method);
                     }
             })
 
         }else{
-            checkout(total,r_total_discount,payment_method);
+    alert('inside  the block')
+            checkout(total,discount,payment_method);
         }
 
     }
 
     function checkout(total, total_discount, payment_method_id)
     {
+        alert('called here')
         _token = '{{csrf_token()}}'
         $.ajax({
             method:'post',
@@ -428,12 +475,14 @@
             handlePrint(data.data.receipt_ref);
         }
         html = data.data.html;
+        type = data.data.type;
         total = data.data.total
-        total_discount = data.data.total_discount
+        discount = data.data.discount
         sub_total = data.data.sub_total
+        $(`select[name=type] option[value=${type}]`).attr('selected','selected');
         $('#sub_total').val(sub_total);
         $('#total').val(total);
-        $('#total_discount').val(total_discount);
+        $('#discount').val(discount);
         $('#table-details').html(html)
         clearSelect()
     }

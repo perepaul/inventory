@@ -43,6 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::get('sales/{id}/delete', 'SalesController@deleteItem')->name('sales.delete.item');
     Route::get('sales/delete-all', 'SalesController@deleteAll')->name('sales.delete.all');
     Route::get('sales/{id}/update/{quantity}', 'SalesController@update')->name('sales.update');
+    Route::get('sales/update-type/{type}','SalesController@updateSaleType')->name('sales.update.type');
+    Route::get('sales/discount/{discount}', 'SalesController@calculateDiscount')->name('sales.discount');
+    Route::get('sales/{id}/change-unit/{unit}','SalesController@changeUnit')->name('sales.change-unit');
     Route::post('sales/checkout', 'SalesController@checkout')->name('sales.checkout');
 
     //sales receipt

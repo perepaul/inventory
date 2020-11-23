@@ -81,7 +81,7 @@
             </td>
             <td>{{$saleItem->quantity}}</td>
             <td>
-                {{format_currency($saleItem->product->price*$saleItem->quantity,true)}}
+                {{format_currency($saleItem->product->price($sale->type,$saleItem->unit)*$saleItem->quantity,true)}}
             </td>
         </tr>
         @endforeach

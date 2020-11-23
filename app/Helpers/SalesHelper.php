@@ -54,22 +54,21 @@ class SalesHelper
         return $sale;
     }
 
-    public function addToSale($product_id, $type)
+    public function addToSale($product_id, $unit)
     {
         $sale = $this->sale();
         $product = $this->productHelper->findProduct($product_id);
-        if ($this->filterSale($product_id)->count()) {
+        $filtered = $this->filterSale($product->id);
+        if (!is_null($filtered) && $filtered->count()) {
             return 'exists';
         }
 
-        if($product->outOfStock()){
+        if($product->outOfStock($unit)){
             return 'out_of_stock';
         }
-
         $saleItem = new SaleItem([
             'product_id' => $product->id,
             'quantity' => 1,
-            'unit_id' => defaultUnit($product,true)
         ]);
 
         $sale->sale_items()->save($saleItem);
@@ -84,21 +83,45 @@ class SalesHelper
 
     public function updateSale($id, $qty)
     {
+        $sale = $this->sale();
         $sale_item = $this->filterSale($id);
+        
         $param = ['quantity' => $qty];
         if ($qty > 0) {
-            return  $sale_item->first()->update($param);
+            return  $sale_item->update($param);
         } else {
             return $sale_item->delete();
         }
     }
 
-    public function deleteSaleItem($id)
+    public function updateSaleType($type)
     {
-        $sale_item = $this->filterSale($id);
-        return $sale_item->first()->delete();
+        $sale = $this->sale();
+        return $sale->update(['type'=>$type]);
     }
 
+    public function deleteSaleItem($id)
+    {
+        $item = $this->filterSale($id);
+        SaleItem::findOrFail($item->id)->delete();
+        // return $sale_item->delete();
+    }
+
+    public function calculateDiscount(int $discount)
+    {
+        $sale = $this->sale();
+        return $sale->update(['discount'=>$discount]);
+    }
+
+    public function changeUnit($id,$unit)
+    {
+        $sale_item = $this->filterSale($id);
+        $product = $sale_item->product;
+        if($product->outOfStock($unit)){
+            return 'out_of_stock';
+        }
+        return $sale_item->update(['unit'=>$unit]);
+    }
     public function deleteAll()
     {
         $sale = $this->sale();
@@ -119,17 +142,37 @@ class SalesHelper
             return false;
         }
         $out_of_stock = 0;
+        $total = 0;
+        $total_cost = 0;
         foreach ($sale->sale_items as $sale_item) {
             $product = $sale_item->product;
-            if ($product->quantity <= 0) $out_of_stock++;
-            if ($out_of_stock <= 0) $product->update(['quantity' => ($product->quantity - $sale_item->quantity)]);
+            $total += $product->price($sale->type,$sale_item->unit);
+            $total_cost += $product->costPrice($sale->type,$sale_item->unit);
+            if ($product->outOfStock($sale_item->unit)) $out_of_stock++;
+            if ($out_of_stock <= 0) $this->deductQuantity($product,$sale_item);
         }
         if ($out_of_stock > 0) {
             return ['out_of_stock' => true, 'count' => $out_of_stock];
         }
+        $total = $total - $sale->discount;
+        
+        if($total_cost > $total){
+            return 'total_mismatch';
+        }
+
         $data['status'] = 1;
         return $sale->update($data);
     }
+
+    private function deductQuantity($product,$item)
+    {
+        $quantity = '';
+        $quantity = $item->unit ==  'pieces' ? 'pieces_stock':'carton_stock';
+        $product->$quantity = $product->$quantity - $item->quantity;
+       return $product->save();
+    }
+
+
 
     public function saleQuantityAdapter($product_id, $qty)
     {
@@ -168,10 +211,7 @@ class SalesHelper
     public function filterSale($id,$unit_id = null)
     {
         $sale = $this->sale();
-        $sale_items = $sale->sale_items()->get();
-        $filtered = $sale_items->filter(function ($item) use ($id,$unit_id) {
-            return $item->product_id == $id && $item->unit_id == $unit_id ??defaultUnit(true);
-        });
+        $filtered = $sale->sale_items()->where('product_id',$id)->first();
 
         return $filtered;
     }
