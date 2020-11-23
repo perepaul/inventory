@@ -15,6 +15,8 @@ class MenuFilter implements FilterInterface
         if (isset($item['can']) && !$user->hasPermission($item['can'])) {
             // $item['restricted'] = true;
             return false;
+        }elseif(isset($item['is']) && !$user->isAn($item['is'])){
+            return false;
         }
 
         return $item;

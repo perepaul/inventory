@@ -260,6 +260,7 @@ return [
             'text' => 'Employees',
             'url'  => 'users',
             'icon' => 'fa fa-fw fa-users',
+            'is'=>'admin'
 
         ],
         [
