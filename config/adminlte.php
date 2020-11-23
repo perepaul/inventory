@@ -341,11 +341,12 @@ return [
         //         ],
         //     ],
         // ],
-        ['header' => 'STORE SETTINGS'],
+        ['header' => 'STORE SETTINGS','is' => 'admin'],
         [
             'text'       => 'General settings',
             'icon'      =>  'fa fa-cog',
-            'url'       =>  'settings'
+            'url'       =>  'settings',
+            'is'        =>  'admin',
         ],
         // [
         //     'text'       => 'warning',
