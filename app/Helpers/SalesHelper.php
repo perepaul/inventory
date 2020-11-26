@@ -71,6 +71,9 @@ class SalesHelper
             break;
             }
         }
+        if($newUnit == 'out_of_stock'){
+            return $newUnit;
+        }
         $saleItem = new SaleItem([
             'product_id' => $product->id,
             'quantity' => 1,

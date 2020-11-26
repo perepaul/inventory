@@ -238,17 +238,7 @@ return [
             'text' => 'Inventories',
             'url'  => 'inventories',
             'icon' => 'fa fa-fw fa-barcode',
-            'can' => 'read-inventory',
-            'submenu'=>[
-                [
-                    'text'  => 'All Inventories',
-                    'url'   => 'inventories'
-                ],
-                [
-                    'text'  => 'Units',
-                    'url'   => 'unit'
-                ],
-            ]
+            'can' => 'read-inventory'
         ],
         [
             'text' => 'Inventory purchase   ',
