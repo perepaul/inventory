@@ -142,8 +142,10 @@
         });
 
 
-        // Simulate a scan programmatically - e.g. to test event handlers
-            // onScan.simulate(document, '5565670');
+        // setTimeout(()=>{
+
+        //     onScan.simulate(document, '378273822839390303');
+        // },3000)
 
 
 
@@ -182,7 +184,7 @@
             $.ajax({
                 url:'/sales/add',
                 method: 'get',
-                data:{id,type:$('[name=type]').val()}
+                data:{id}
             }).then(
                 res =>{
                     playsound('beep')

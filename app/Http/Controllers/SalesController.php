@@ -52,7 +52,7 @@ class SalesController extends Controller
     {
         // dd($request->all());
         // dd($request->all());
-        $sale_items = $this->salesHelper->addToSale($request->id, $request->type);
+        $sale_items = $this->salesHelper->addToSale($request->id);
         if ($sale_items == 'exists') {
             return response()->json([
                 'message' => "Product already added to sale",

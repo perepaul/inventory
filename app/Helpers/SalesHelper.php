@@ -54,7 +54,7 @@ class SalesHelper
         return $sale;
     }
 
-    public function addToSale($product_id, $unit)
+    public function addToSale($product_id, $unit = 'pieces')
     {
         $sale = $this->sale();
         $product = $this->productHelper->findProduct($product_id);
@@ -62,13 +62,19 @@ class SalesHelper
         if (!is_null($filtered) && $filtered->count()) {
             return 'exists';
         }
-
-        if($product->outOfStock($unit)){
-            return 'out_of_stock';
+        $newUnit = '';
+        foreach(['pieces','carton'] as $un){
+            if($product->outOfStock($un)){
+                $newUnit = 'out_of_stock';
+            }else{
+                $newUnit = $un;
+            break;
+            }
         }
         $saleItem = new SaleItem([
             'product_id' => $product->id,
             'quantity' => 1,
+            'unit' => $newUnit
         ]);
 
         $sale->sale_items()->save($saleItem);
