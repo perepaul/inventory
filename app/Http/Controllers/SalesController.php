@@ -169,23 +169,24 @@ class SalesController extends Controller
             ], 400);
         }
 
-        try {
+    
            $response = $this->salesHelper->changeUnit($id,$unit);
+        //    dd($response);
            if($response === 'out_of_stock'){
             return response()->json([
                 'succes' => false,
                 'message' => 'Item out of '.$unit.' stock',
                 'type' => 'error'
             ], 400);
+           }elseif($response == false){
+               return response()->json([
+                   'succes' => false,
+                   'message' => 'Failed to update sale item unit!',
+                   'type' => 'error'
+               ], 400);
            }
-        } catch (\Throwable $e) {
-            Log::error($e);
-            return response()->json([
-                'succes' => false,
-                'message' => 'Failed to update sale item unit!',
-                'type' => 'error'
-            ], 400);
-        }
+
+        
 
         return $this->returnRes();
     }

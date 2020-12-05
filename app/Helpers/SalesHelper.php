@@ -131,7 +131,8 @@ class SalesHelper
         if($product->outOfStock($unit)){
             return 'out_of_stock';
         }
-        return $sale_item->update(['unit'=>$unit]);
+        $sale_item->unit=$unit;
+        return $sale_item->save();
     }
     public function deleteAll()
     {
@@ -222,7 +223,7 @@ class SalesHelper
     public function filterSale($id,$unit_id = null)
     {
         $sale = $this->sale();
-        $filtered = $sale->sale_items()->where('product_id',$id)->first();
+        $filtered = $sale->sale_items->where('product_id',$id)->first();
 
         return $filtered;
     }
