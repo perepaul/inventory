@@ -305,6 +305,7 @@
     function changeSaleType()
     {
         var type = $('[name=type]').val()
+        console.log(type);
         $.ajax('sales/update-type/'+type)
         .then(
             res => {
@@ -323,9 +324,10 @@
         )
     }
 
-    function changeUnit(id)
+    function changeUnit(id,element)
     {
-        var unit = $('[name=unit]').val()
+        // console.log(element);
+        var unit = $(element).val()
         $.ajax('sales/'+id+'/change-unit/'+unit)
         .then(
             res => {

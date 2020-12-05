@@ -300,7 +300,7 @@ class SalesController extends Controller
         $markup .=     '</td>';
         $markup .=    '<td>' . format_currency($price) . '</td>';
         $markup .=    '<td>';
-                    $markup .= '<select name="unit" class="form-control" onchange="changeUnit('.$product->id.')">';
+                    $markup .= '<select name="unit" class="form-control" onchange="changeUnit('.$product->id.',this)">';
                         $markup .= "<option value='pieces' {$pcs}>Pieces(pcs)</option>";
                         $markup .= "<option value='carton' {$ctn}>Carton(ctn)</option>";
                     $markup .= '</select>';
