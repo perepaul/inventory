@@ -223,7 +223,7 @@ class SalesHelper
     public function filterSale($id,$unit_id = null)
     {
         $sale = $this->sale();
-        $filtered = $sale->sale_items->where('product_id',$id)->first();
+        $filtered = SaleItem::where('product_id',$id)->where('sales_id',$sale->id)->first();
 
         return $filtered;
     }
