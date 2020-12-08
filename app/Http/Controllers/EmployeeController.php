@@ -89,7 +89,9 @@ class EmployeeController extends Controller
     public function updateProfile(Request $request, $id)
     {
         $this->validateReq($request, true, $id);
+        $data = $request->except(['_token', 'permissions', 'passport', 'role', 'password_confirmation']);
         $employee = $this->employeeHelper->getEmployee($id);
+        // dd($request->all());
         if ($request->hasFile('passport')) {
             $file = $request->file('passport');
             $data['passport'] = now() . '.' . $file->extension();
@@ -101,7 +103,7 @@ class EmployeeController extends Controller
             $data['passport'] = 'default.png';
         }
 
-        $employee->update($request->except(['_token', 'permissions', 'passport', 'role', 'password_confirmation']));
+        $employee->update($data);
         session()->flash('message', 'Profile updated successfully');
         return redirect()->back();
     }
