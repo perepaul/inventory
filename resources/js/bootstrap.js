@@ -13,6 +13,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.$ = window.jQuery = require('jquery');
 window.Swal = require('sweetalert2');
 window.onScan = require('onscan.js');
+window.chart = require('chart.js');
 
 require('select2');
 require('overlayscrollbars');
@@ -37,10 +38,10 @@ iziToast.settings({
     icon: 'material-icons',
     transitionIn: 'flipInX',
     transitionOut: 'flipOutX',
-    onOpening: function () {
+    onOpening: function() {
         // console.log('callback abriu!');
     },
-    onClosing: function () {
+    onClosing: function() {
         // console.log("callback fechou!");
     }
 });

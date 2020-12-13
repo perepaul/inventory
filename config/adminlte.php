@@ -263,10 +263,10 @@ return [
                     'text'  => 'Sales Report',
                     'url'   => 'reports/sales'
                 ],
-                [
-                    'text'  => 'Profit and loss',
-                    'url'   => 'reports/profit-loss'
-                ],
+                // [
+                //     'text'  => 'Profit and loss',
+                //     'url'   => 'reports/profit-loss'
+                // ],
                 [
                     'text'  => 'Purchase report',
                     'url'   => 'reports/purchase'

@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Product;
 use App\SaleItem;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ProductHelper
@@ -15,9 +16,32 @@ class ProductHelper
         $this->productModel = $product;
         $this->saleItem = $saleItem;
     }
-    public function getAllProducts($status = 1)
+    public function getAllProducts($status = null,$paginate = false,$filters = [])
     {
-        return $this->productModel::where('status', $status)->orderBy('id', 'desc')->paginate(10);
+        $products = '';
+        if(!is_null($status))
+            $products = $this->productModel::where('status', $status)->orderBy('id', 'desc');
+        else
+            $products = $this->productModel::orderBy('id', 'desc');
+
+        // $products->whereDate('created_at','<=',now()->toDateString())->whereDate('created_at','>=',now()->addDay(1)->toDateString());
+        // dd('after the products');
+        if(isset($filters['start_date']) && isset($filters['end_date'])){
+            $start = Carbon::parse($filters['start_date']);
+            $end = Carbon::parse($filters['end_date']);
+            if($start->greaterThan($end)){
+                $products->whereDate('created_at','>=',$start->toDateString())->whereDate('created_at','<=',$end->toDateString());
+            }
+        }
+
+
+
+
+
+        if($paginate)
+            return $products->paginate(10);
+        else
+            return $products->get();
     }
     public function findProduct(int $id)
     {
@@ -40,9 +64,20 @@ class ProductHelper
 
     public function getLowStockProduct()
     {
-        return $this->productModel->whereColumn('alert_quantity', '>=', 'quantity')->paginate(10, ['*'], 'low_stock');
+        return $this->productModel->whereColumn('pieces_stock', '<=', 'pieces_alert_quantity')->orWhereColumn('carton_stock', '<=', 'carton_alert_quantity')->paginate(10, ['*'], 'low_stock');
+        return [];
     }
-
+    public function getLowStockCount()
+    {
+        return $this->productModel->whereColumn('pieces_stock','<=','pieces_alert_quantity')->count();
+    }
+    public function getTotalProductCount($status = null)
+    {
+        if(!is_null($status))
+        return $this->productModel->where('status',$status)->count();
+        else
+        return $this->productModel->count();
+    }
     public function getBestSellingProducts($limit = 2)
     {
         // return $this->saleItem->groupBy('*')->select('*', \DB::raw('count(product_id) as total'))->get();

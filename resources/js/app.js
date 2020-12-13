@@ -1,12 +1,12 @@
 require('./bootstrap');
 
-$(document).ajaxComplete(function myErrorHandler (event, xhr, ajaxOptions, thrownError) {
+$(document).ajaxComplete(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {
     if (xhr.status == 401) {
         window.location.href = "/login";
     }
 });
 
-$(document).on('keypress', '.no-input', function (e) {
+$(document).on('keypress', '.no-input', function(e) {
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
@@ -100,14 +100,14 @@ handleRoleSelect = (url = '') => {
     // }
     $('.p-checkbox').attr('checked', false)
     $.ajax({
-        method: 'get',
-        url: url,
-    })
+            method: 'get',
+            url: url,
+        })
         .then(res => tickCheckbox(res.data), eres => console.log(eres))
 }
 
 tickCheckbox = (data) => {
-    $('.p-checkbox').each(function (index, elem) {
+    $('.p-checkbox').each(function(index, elem) {
         data.forEach(item => {
             if (elem.id == item) {
                 elem.setAttribute('checked', true);
@@ -117,7 +117,7 @@ tickCheckbox = (data) => {
 }
 
 //  MANIPULATION OF CART QUANTITY BUTTON
-$(document).on('click', '.btn-number', function (e) {
+$(document).on('click', '.btn-number', function(e) {
     e.preventDefault();
 
     // fieldName = $(this).attr('data-field');
@@ -147,7 +147,7 @@ $(document).on('click', '.btn-number', function (e) {
         input.val(0);
     }
 });
-$(document).on('focusin', '.input-text', function () {
+$(document).on('focusin', '.input-text', function() {
     $(this).data('oldValue', $(this).val());
 });
 
@@ -156,7 +156,7 @@ $(document).on('focusin', '.input-text', function () {
 
 
 
-$(document).on('keydown', '.input-text', function (e) {
+$(document).on('keydown', '.input-text', function(e) {
     return onlyNumbers(e);
 });
 
@@ -178,7 +178,7 @@ onlyNumbers = (e) => {
 
 // toggle collapse class
 
-$(document).on('click', '.toggle-handle', function () {
+$(document).on('click', '.toggle-handle', function() {
     $(this).toggleClass(() => {
         if ($(this).hasClass('fa-minus')) {
             return 'fa-plus';
@@ -188,3 +188,43 @@ $(document).on('click', '.toggle-handle', function () {
     })
 })
 
+drawChart = ctx => {
+    return new chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            datasets: [{
+                    label: 'Wholesale',
+                    backgroundColor: 'rgba(60,141,188,0.9)',
+                    borderColor: 'rgba(60,141,188,0.8)',
+                    pointRadius: false,
+                    pointColor: '#3b8bba',
+                    pointStrokeColor: 'rgba(60,141,188,1)',
+                    pointHighlightFill: '#fff',
+                    pointHighlightStroke: 'rgba(60,141,188,1)',
+                    data: [28, 48, 40, 19, 86, 27, 90, 300, 800, 200]
+                },
+                {
+                    label: 'Retail',
+                    backgroundColor: 'rgba(210, 214, 222, 1)',
+                    borderColor: 'rgba(210, 214, 222, 1)',
+                    pointRadius: false,
+                    pointColor: 'rgba(210, 214, 222, 1)',
+                    pointStrokeColor: '#c1c7d1',
+                    pointHighlightFill: '#fff',
+                    pointHighlightStroke: 'rgba(220,220,220,1)',
+                    data: [65, 59, 80, 81, 56, 55, 40]
+                },
+            ],
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        }
+    })
+}

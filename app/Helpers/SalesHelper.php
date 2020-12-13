@@ -10,8 +10,9 @@ class SalesHelper
 {
     public $salesModel;
     public $productHelper;
+    public $saleItemModel;
 
-    public function __construct(Sales $sales, ProductHelper $product)
+    public function __construct(Sales $sales, ProductHelper $product,SaleItem $saleitem)
     {
         // dd(auth()->guest());
         // if (auth()->user()) {
@@ -29,7 +30,12 @@ class SalesHelper
 
     public function getSales()
     {
-        //
+        return $this->salesModel->where('status',1)->orderBy('id','desc')->get();
+    }
+
+    public function productsSold()
+    {
+        // return $this->salesMOdel->where
     }
 
     public function getUserSale($user)
@@ -230,7 +236,6 @@ class SalesHelper
 
     public function bestSellingProducts($limit = 5)
     {
-        dd('here');
         $sales = $this->sale(1);
         $products = $sales->sale_items;
         return $products;
